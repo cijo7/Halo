@@ -1,0 +1,36 @@
+#arrow, #arrow:hover{
+    background: Transparent no-repeat;
+    outline:none;
+    border: 0;
+}
+#time{
+    font-family: Lato, serif;
+    font-size: 20px;
+    color: white;
+}
+#date{
+    font-family: Lato, serif;
+    font-size: 16px;
+    color: white;
+}
+#status{
+    font-family: Lato, serif;
+    font-size: 36px;
+    color: white;
+}
+
+#place{
+    font-family: Lato, serif;
+    font-size: 15px;
+    color: white;
+}
+#temperature{
+    font-family: Lato, serif;
+    font-size: 18px;
+    color: white;
+}
+#f_time, #f_temp{
+    font-family: Lato, serif;
+    font-size: 14px;
+    color: white;
+}

@@ -1,0 +1,4 @@
+pygobject
+matplotlib
+requests
+pytz
