@@ -13,22 +13,24 @@ at the user location based on the user ip, or can be used to view weather data f
 
 ## Installation
 
-You can [download](https://github.com/cijo7/Halo/raw/master/dist/Halo-0.1.0.tar.gz) the package and install it by running
+You can [download](https://github.com/cijo7/Halo/raw/master/dist/Halo-0.1.0.tar.gz) the package 
+and extract it to a suitable folder. Then you can install it by running
 
     sudo python3 setup.py install
 
 ## Usage
-After installing you directly launch the app either by searching for Halo, or from terminal by running
+After installing it, you can directly launch it either by searching for Halo among your installed apps, or from terminal by running
 
     halo
 
 ### Running directly from Source
 
-You need to first install the dependencies manually by running
+You can directly run this code without the need of installing anything into your system.
+First, you will need to install the dependencies manually by running
 
     pip3 install -r requirements.txt
     
-Then run the module
+Then run the python module by executing
 
     python3 -m halo
 
