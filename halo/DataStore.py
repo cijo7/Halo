@@ -4,10 +4,12 @@ Handles the data storage and retrieval.
 
 import sqlite3
 
+from halo.settings import DEFAULT_DB_LOCATION
+
 
 class DataStore:
     """sqlite3 database class that store basic city info's."""
-    __DB_LOCATION = "database.sqlite"
+    __DB_LOCATION = DEFAULT_DB_LOCATION
 
     def __init__(self, db_location=None):
         """

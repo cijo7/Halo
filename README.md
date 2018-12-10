@@ -13,7 +13,7 @@ at the user location based on the user ip, or can be used to view weather data f
 
 ## Installation
 
-You can [download](https://github.com/cijo7/Halo/raw/master/dist/Halo-0.1.0.tar.gz) the package 
+You can [download](https://github.com/cijo7/Halo/releases/download/0.1.1/Halo-0.1.1.tar.gz) the package 
 and extract it to a suitable folder. Then you can install it by running
 
     sudo python3 setup.py install

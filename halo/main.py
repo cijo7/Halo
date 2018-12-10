@@ -46,7 +46,7 @@ class MainWindow(Gtk.ApplicationWindow):
         # Header
         header = Gtk.HeaderBar()
         header.set_show_close_button(True)
-        header.props.title = "Weather App"
+        header.props.title = "Halo"
         self.set_titlebar(header)
 
         change_place = Gtk.Button(label="Change City")

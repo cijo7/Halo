@@ -6,3 +6,4 @@ Halo.egg-info/
 __pycache__/
 database.sqlite
 venv/
+dist/
