@@ -22,9 +22,9 @@ rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
 
 
 class MainWindow(Gtk.ApplicationWindow):
-    def __init__(self, app):
+    def __init__(self, application):
         """Initialises the main window"""
-        super().__init__(application=app)
+        super().__init__(application=application)
         self.api = API()
         self.city = None
         self.city_tz = "UTC"
@@ -218,7 +218,6 @@ class MainWindow(Gtk.ApplicationWindow):
     def render_weather(self):
         """Update the current weather info of currently chosen city"""
         if self.currentWeather is None:
-            print(self.currentWeather)
             return
         self.icon.set_from_pixbuf(Icon.get_icon(self.currentWeather['code'], 60))
         self.place.set_text(self.city)
