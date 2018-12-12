@@ -1,6 +1,6 @@
-from unittest import TestCase
+from unittest import TestCase, main
 
-from DataStore import DataStore
+from halo.DataStore import DataStore
 
 
 class TestDataStore(TestCase):
@@ -11,3 +11,7 @@ class TestDataStore(TestCase):
         store = DataStore()
         store.add_city(("City", "AB"))
         self.assertTrue(("City", "AB") in store.get_cities(), "Unable to read items written to database")
+
+
+if __name__ == "__main__":
+    main()

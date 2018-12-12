@@ -268,11 +268,11 @@ class TestAPI(TestCase):
             self.api.get_current_weather("ip=0.0.0.3")
 
         city, city_tz, current_weather = self.api.get_current_weather("ip=auto")
-        self.assertIsNotNone(city)
-        self.assertIsNotNone(city_tz)
+        self.assertIsNotNone(city, "Invalid city.")
+        self.assertIsNotNone(city_tz, "Invalid timezone.")
         self.assertDictEqual({
             'status': 'Broken clouds', 'code': '802', 'temp': 13.85
-        }, current_weather)
+        }, current_weather, "Invalid current weather data.")
 
     @mock.patch('requests.get', side_effect=mock_request)
     def test_get_forecast_weather(self, mock_get):
@@ -286,11 +286,11 @@ class TestAPI(TestCase):
             self.api.get_forecast_weather("ip=0.0.0.3")
 
         forecast_weather, chart = self.api.get_forecast_weather("ip=auto")
-        self.assertIsNotNone(forecast_weather)
-        self.assertIsNotNone(chart)
+        self.assertIsNotNone(forecast_weather, "Invalid forecast data.")
+        self.assertIsNotNone(chart, "Invalid forecast chart data.")
 
     @mock.patch('requests.get', side_effect=mock_request)
-    def test_get_weather_history(self, mock_get, ):
+    def test_get_weather_history(self, mock_get):
         global MOCK_DATA
         MOCK_DATA = history_daily_data
         with self.assertRaises(NotFound):
@@ -301,8 +301,8 @@ class TestAPI(TestCase):
             self.api.get_weather_history("ip=0.0.0.3", "America/New_York")
 
         history_weather, chart = self.api.get_weather_history("ip=auto", "America/New_York")
-        self.assertIsNotNone(history_weather)
-        self.assertIsNotNone(chart)
+        self.assertIsNotNone(history_weather, "Invalid history data.")
+        self.assertIsNotNone(chart, "Invalid history chart data.")
 
 
 if __name__ == '__main__':
