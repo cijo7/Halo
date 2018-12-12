@@ -14,7 +14,7 @@ class API:
     (limit on free plan) historic weather data.
     """
     def __init__(self):
-        self._base_url = "https://api.weatherbit.io/v2.0/"
+        self._base_url = "https://api.weatherbit.io/v2.0"
         self._headers = {'Accept': 'application/json', 'Accept-Charset': 'UTF-8'}
 
     def get_current_weather(self, query):
@@ -86,7 +86,7 @@ class API:
             elif r.status_code == 429:
                 raise RateLimitReached("The API rate limit has reached. Please wait till it resets.")
             else:
-                print("No data returned")
+                raise APIError("Something went wrong. Please try after sometime.")
         except requests.ConnectionError:
             raise APIError("Something went wrong. Check your internet connection or please try again later.")
 
