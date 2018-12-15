@@ -1,4 +1,4 @@
-# Halo - The Weather App
+# Halo - The Weather App [![Build Status](https://travis-ci.com/cijo7/Halo.svg?branch=master)](https://travis-ci.com/cijo7/Halo)
 Halo is a weather app written in python. You can quickly view the
 weather in your city and checkout the forecast and historic temperature trends. 
 Halo is smart enough to identify your location based on your ip.
