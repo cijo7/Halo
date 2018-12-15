@@ -51,7 +51,8 @@ class MainWindow(Gtk.ApplicationWindow):
 
         change_place = Gtk.Button(label="Change City")
         change_place.connect("clicked", self.switch_city)
-        refresh_btn = Gtk.Button(label=None, image=Gtk.Image(stock=Gtk.STOCK_REFRESH))
+        refresh_btn = Gtk.Button(label=None, image=Gtk.Image(icon_name='view-refresh-symbolic',
+                                                             icon_size=Gtk.IconSize.BUTTON))
         refresh_btn.connect("clicked", self.refresh)
         header.pack_end(change_place)
         header.pack_end(refresh_btn)
