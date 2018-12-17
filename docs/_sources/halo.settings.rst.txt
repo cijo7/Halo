@@ -1,0 +1,7 @@
+halo.settings module
+====================
+
+.. automodule:: halo.settings
+    :members:
+    :undoc-members:
+    :show-inheritance:

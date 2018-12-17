@@ -7,5 +7,6 @@ __pycache__/
 venv/
 dist/
 deb_dist/
+sphinx/
 *.tar.gz
 *.sqlite

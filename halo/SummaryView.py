@@ -1,9 +1,9 @@
 from datetime import datetime
 
 import gi
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib import rcParams
+from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.figure import Figure
 
 from halo.Icon import Icon
 
@@ -21,6 +21,7 @@ class SummaryView:
     def __init__(self, single_day_mode=False):
         """
         Initialises charting and summary.
+
         :param single_day_mode: Set to true to render summary of single item(used in historic view).
         """
         self.single_day_mode = single_day_mode
@@ -67,6 +68,7 @@ class SummaryView:
     def get_view(self):
         """
         Returns the view object for rendering ui.
+
         :return: View
         """
         return self.view

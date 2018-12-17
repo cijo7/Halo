@@ -1,0 +1,15 @@
+Halo
+============
+
+Here is the list of modules this package contains.
+
+.. toctree::
+
+   halo.API
+   halo.DataStore
+   halo.Icon
+   halo.Place
+   halo.Preference
+   halo.SummaryView
+   halo.app
+   halo.settings

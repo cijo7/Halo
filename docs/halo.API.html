@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>halo.API module &mdash; Halo 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="halo.DataStore module" href="halo.DataStore.html" />
+    <link rel="prev" title="Halo" href="halo.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Halo
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Code Documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="halo.html">Halo</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">halo.API module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.DataStore.html">halo.DataStore module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.Icon.html">halo.Icon module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.Place.html">halo.Place module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.Preference.html">halo.Preference module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.SummaryView.html">halo.SummaryView module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.app.html">halo.app module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="halo.settings.html">halo.settings module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Halo</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="halo.html">Halo</a> &raquo;</li>
+        
+      <li>halo.API module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/halo.API.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-halo.API">
+<span id="halo-api-module"></span><h1>halo.API module<a class="headerlink" href="#module-halo.API" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="halo.API.API">
+<em class="property">class </em><code class="descclassname">halo.API.</code><code class="descname">API</code><a class="reference internal" href="_modules/halo/API.html#API"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is a wrapper for the Rest API endpoints of www.weatherbit.io.
+Currently it implements fetching current weather, forecast and 1 day
+(limit on free plan) historic weather data.</p>
+<dl class="method">
+<dt id="halo.API.API.get_current_weather">
+<code class="descname">get_current_weather</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/API.html#API.get_current_weather"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API.get_current_weather" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches and returns current weather data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – search query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a tuple containing city, city timezone, current weather data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="halo.API.API.get_forecast_weather">
+<code class="descname">get_forecast_weather</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/API.html#API.get_forecast_weather"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API.get_forecast_weather" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches and returns the forecast weather data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – search query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">forecast weather data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="halo.API.API.get_forecast_weather_chart">
+<code class="descname">get_forecast_weather_chart</code><span class="sig-paren">(</span><em>query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/API.html#API.get_forecast_weather_chart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API.get_forecast_weather_chart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches and returns the forecast weather chart data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – search query</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">charting data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="halo.API.API.get_weather_history">
+<code class="descname">get_weather_history</code><span class="sig-paren">(</span><em>query</em>, <em>tz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/API.html#API.get_weather_history"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API.get_weather_history" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches and returns the historic weather data(1 day).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> – search query</li>
+<li><strong>tz</strong> – city timezone</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">historic weather data.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="halo.API.API.get_weather_history_chart">
+<code class="descname">get_weather_history_chart</code><span class="sig-paren">(</span><em>query</em>, <em>tz</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/API.html#API.get_weather_history_chart"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.API.get_weather_history_chart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches and returns the historic weather data chart data(1 day).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> – search query</li>
+<li><strong>tz</strong> – city timezone</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">charting data.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="halo.API.APIError">
+<em class="property">exception </em><code class="descclassname">halo.API.</code><code class="descname">APIError</code><a class="reference internal" href="_modules/halo/API.html#APIError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.APIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>An Exception class for exceptions that occur due to external problems
+with the API service.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="halo.API.NotFound">
+<em class="property">exception </em><code class="descclassname">halo.API.</code><code class="descname">NotFound</code><a class="reference internal" href="_modules/halo/API.html#NotFound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.NotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#halo.API.APIError" title="halo.API.APIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">halo.API.APIError</span></code></a></p>
+<p>An Exception that will occur when data for a city is not found.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="halo.API.RateLimitReached">
+<em class="property">exception </em><code class="descclassname">halo.API.</code><code class="descname">RateLimitReached</code><a class="reference internal" href="_modules/halo/API.html#RateLimitReached"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.API.RateLimitReached" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#halo.API.APIError" title="halo.API.APIError"><code class="xref py py-class docutils literal notranslate"><span class="pre">halo.API.APIError</span></code></a></p>
+<p>Daily rate limit of API service has been reached and we must wait until it resets.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="halo.DataStore.html" class="btn btn-neutral float-right" title="halo.DataStore module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="halo.html" class="btn btn-neutral" title="Halo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Cijo Saju
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

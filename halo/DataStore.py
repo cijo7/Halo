@@ -38,6 +38,7 @@ class DataStore:
     def __init__(self, db_location=None):
         """
         Initialises the connection and create a cursor.
+
         :param db_location: File location of database.
         """
         if db_location:
@@ -103,6 +104,7 @@ class DataStore:
     def get_cities(self):
         """
         Get a list of all the cities
+
         :return: list of city name and country codes.
         """
         return list(self.__cur.execute('''SELECT * FROM city'''))
@@ -111,6 +113,7 @@ class DataStore:
     def add_city(self, params):
         """
         Adds the city to db if it doesn't exists.
+
         :param params: a tuple of city and country code
         """
         self.__cur.execute('''INSERT INTO city VALUES (?,?)''', params)
@@ -139,6 +142,7 @@ class DataStore:
     def screen(self, width, height):
         """
         Save the screen width and height to the db.
+
         :param width: Width of screen.
         :param height: Height of screen.
         """

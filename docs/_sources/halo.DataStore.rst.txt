@@ -1,0 +1,7 @@
+halo.DataStore module
+=====================
+
+.. automodule:: halo.DataStore
+    :members:
+    :undoc-members:
+    :show-inheritance:

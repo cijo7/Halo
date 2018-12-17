@@ -1,0 +1,7 @@
+halo.API module
+===============
+
+.. automodule:: halo.API
+    :members:
+    :undoc-members:
+    :show-inheritance:

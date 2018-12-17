@@ -19,6 +19,7 @@ class API:
     def get_current_weather(self, query):
         """
         Fetches and returns current weather data.
+
         :param query: search query
         :return: a tuple containing city, city timezone, current weather data.
         """
@@ -36,6 +37,7 @@ class API:
     def get_forecast_weather(self, query):
         """
         Fetches and returns the forecast weather data.
+
         :param query: search query
         :return: forecast weather data.
         """
@@ -47,6 +49,7 @@ class API:
     def get_forecast_weather_chart(self, query):
         """
         Fetches and returns the forecast weather chart data.
+
         :param query: search query
         :return: charting data.
         """
@@ -58,6 +61,7 @@ class API:
     def get_weather_history(self, query, tz):
         """
         Fetches and returns the historic weather data(1 day).
+
         :param query: search query
         :param tz: city timezone
         :return: historic weather data.
@@ -69,6 +73,7 @@ class API:
     def get_weather_history_chart(self, query, tz):
         """
         Fetches and returns the historic weather data chart data(1 day).
+
         :param query: search query
         :param tz: city timezone
         :return: charting data.
@@ -107,12 +112,22 @@ class API:
 
 
 class APIError(Exception):
+    """
+    An Exception class for exceptions that occur due to external problems
+    with the API service.
+    """
     pass
 
 
 class NotFound(APIError):
+    """
+    An Exception that will occur when data for a city is not found.
+    """
     pass
 
 
 class RateLimitReached(APIError):
+    """
+    Daily rate limit of API service has been reached and we must wait until it resets.
+    """
     pass

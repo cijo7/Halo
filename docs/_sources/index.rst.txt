@@ -1,0 +1,85 @@
+.. Halo documentation master file, created by
+   sphinx-quickstart on Mon Dec 17 23:16:17 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Halo - The Weather App |Build Status|
+=====================================
+
+Halo is a weather app written in python. You can quickly view the
+weather in your city and checkout the forecast and historic temperature
+trends. Halo is smart enough to identify your location based on your ip.
+
+.. raw:: html
+
+   <p align="center">
+
+.. raw:: html
+
+   </p>
+
+Prerequisites
+-------------
+
+1. Python 3
+2. Pip
+
+Installation
+------------
+
+Ubuntu
+~~~~~~
+
+You can `download`_ the package and extract it to a suitable folder.
+Then you can install it by running
+
+::
+
+   sudo python3 setup.py install
+
+Usage
+-----
+
+After installing it, you can directly launch it either by searching for
+Halo among your installed apps, or from terminal by running
+
+::
+
+   halo
+
+Running directly from Source
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can directly run this code without the need of installing anything
+into your system. First, you will need to install the dependencies
+manually by running
+
+::
+
+   pip3 install -r requirements.txt
+
+Then run the python module by executing
+
+::
+
+   python3 -m halo
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Code Documentation:
+
+   halo
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+
+
+.. _download: https://github.com/cijo7/Halo/releases/download/v0.1.2/Halo-0.1.2.tar.gz
+
+.. |Build Status| image:: https://travis-ci.com/cijo7/Halo.svg?branch=master
+   :target: https://travis-ci.com/cijo7/Halo

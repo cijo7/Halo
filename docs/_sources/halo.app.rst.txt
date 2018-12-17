@@ -1,0 +1,7 @@
+halo.app module
+===============
+
+.. automodule:: halo.app
+    :members:
+    :undoc-members:
+    :show-inheritance:

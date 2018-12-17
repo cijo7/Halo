@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
+import concurrent.futures
 import sys
 import threading
-import concurrent.futures
 from datetime import datetime
 
 import gi
 import pytz
 from matplotlib import rcParams
 
-from halo.DataStore import DataStore
-from halo.Preference import PreferenceDialog
 from halo.API import API, APIError, RateLimitReached, NotFound
+from halo.DataStore import DataStore
 from halo.Icon import Icon
 from halo.Place import PlaceDialog
+from halo.Preference import PreferenceDialog
 from halo.SummaryView import SummaryView
 from halo.settings import BASE, VERSION
 
@@ -26,7 +26,9 @@ rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
 
 class MainWindow(Gtk.ApplicationWindow):
     def __init__(self, application):
-        """Initialises the main window"""
+        """
+        Initialises the main window
+        """
         super().__init__(application=application)
         self.api = API()
         self.store = DataStore()
@@ -208,6 +210,7 @@ class MainWindow(Gtk.ApplicationWindow):
     def show_preference(self, w):
         """
         Shows the Preference dialog.
+
         :param w: Widget
         """
         preference = PreferenceDialog(self)
@@ -219,8 +222,8 @@ class MainWindow(Gtk.ApplicationWindow):
     def show_about(self, w):
         """
         Shows the about dialog.
+
         :param w: Widget
-        :return:
         """
         about = Gtk.AboutDialog(transient_for=self, modal=True)
 

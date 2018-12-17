@@ -1,0 +1,7 @@
+halo.Preference module
+======================
+
+.. automodule:: halo.Preference
+    :members:
+    :undoc-members:
+    :show-inheritance:

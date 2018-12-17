@@ -1,0 +1,7 @@
+halo.SummaryView module
+=======================
+
+.. automodule:: halo.SummaryView
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -16,7 +16,9 @@ class Icon:
     @staticmethod
     def get_icon(status, size=50):
         """
-        Return Weather icons as per status code as follows:
+        Return Weather icons as per status.
+
+        Possible values as follows:
          Thunderstorm: 200 - 233,
          Light: rain 300 - 302,
          Rain: 500 - 522, 900,

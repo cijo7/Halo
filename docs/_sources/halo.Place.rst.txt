@@ -1,0 +1,7 @@
+halo.Place module
+=================
+
+.. automodule:: halo.Place
+    :members:
+    :undoc-members:
+    :show-inheritance:
