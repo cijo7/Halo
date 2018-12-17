@@ -3,13 +3,37 @@ Handles the data storage and retrieval.
 """
 
 import sqlite3
+import time
+from os import path
 
-from halo.settings import DEFAULT_DB_LOCATION
+from halo.settings import DEFAULT_DB_LOCATION, DEFAULT_WEATHER_API_KEY, \
+    DEFAULT_BACKGROUND_IMAGE, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
+
+
+def query(fn):
+    """A decorator which ensures if a database lock ever happen, then sqlite query is retired seamlessly."""
+    def wrap(*args, **kwargs):
+        while True:
+            try:
+                fn(*args, **kwargs)
+                break
+            except sqlite3.OperationalError as e:
+                if "locked" in str(e):
+                    time.sleep(1)
+                    print("DB is in locked state. Retrying...")
+                else:
+                    raise
+
+    return wrap
 
 
 class DataStore:
-    """sqlite3 database class that store basic city info's."""
+    """sqlite3 database class that store user data and app settings."""
+    __SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT
+    __SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH
     __DB_LOCATION = DEFAULT_DB_LOCATION
+    __API_KEY = DEFAULT_WEATHER_API_KEY
+    __BG_FILE = DEFAULT_BACKGROUND_IMAGE
 
     def __init__(self, db_location=None):
         """
@@ -17,17 +41,64 @@ class DataStore:
         :param db_location: File location of database.
         """
         if db_location:
-            self.__DB_LOCATION = db_location
-        self.__conn = sqlite3.connect(self.__DB_LOCATION)
+            DataStore.__DB_LOCATION = db_location
+        self.__conn = sqlite3.connect(DataStore.__DB_LOCATION)
         if self.__conn is None:
             raise sqlite3.DatabaseError("Could not get a database connection")
         self.__cur = self.__conn.cursor()
         self._first_run()
+        self.refresh_preference()
 
+    def __del__(self):
+        self.__conn.close()
+
+    @query
     def _first_run(self):
-        """Initially create the table."""
+        """Initially create the tables and row contents."""
         self.__cur.execute('''CREATE TABLE IF NOT EXISTS city(city_name text, 
         country_code text, UNIQUE(city_name, country_code) ON CONFLICT REPLACE)''')
+        self.__cur.execute('''CREATE TABLE IF NOT EXISTS setting(name text, 
+                value text, UNIQUE(name))''')
+        self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('api-key',?)''',
+                           (DEFAULT_WEATHER_API_KEY,))
+        self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('bg-image',?)''',
+                           (DEFAULT_BACKGROUND_IMAGE,))
+        self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('screen-width',?)''',
+                           (DEFAULT_SCREEN_WIDTH,))
+        self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('screen-height',?)''',
+                           (DEFAULT_SCREEN_HEIGHT,))
+        self.__conn.commit()
+
+    def refresh_preference(self):
+        """Loads latest preference values from db"""
+        DataStore.__API_KEY = self.__fetch_settings('api-key')
+
+        bg = self.__fetch_settings('bg-image')
+        DataStore.__BG_FILE = bg if path.isfile(bg) else DEFAULT_BACKGROUND_IMAGE
+
+        DataStore.__SCREEN_WIDTH = self.__fetch_settings('screen-width')
+        DataStore.__SCREEN_HEIGHT = self.__fetch_settings('screen-height')
+
+    def __fetch_settings(self, name):
+        """
+        Fetches the specified settings from database.
+
+        :param name: Name of preference to be fetched.
+        :return: Returns the value of the preference.
+        """
+        return self.__cur.execute('''SELECT value FROM setting WHERE "name"=?''',
+                                  (name,)).fetchone()[0]
+
+    @query
+    def __update_settings(self, name, value):
+        """
+        Updates specific preference value.
+
+        :param name: name of preference to be updated.
+        :param value: value of preference.
+        """
+        self.__cur.execute('''UPDATE setting SET "value"=? WHERE "name"=?''', (value, name))
+        self.__conn.commit()
 
     def get_cities(self):
         """
@@ -36,6 +107,7 @@ class DataStore:
         """
         return list(self.__cur.execute('''SELECT * FROM city'''))
 
+    @query
     def add_city(self, params):
         """
         Adds the city to db if it doesn't exists.
@@ -44,5 +116,42 @@ class DataStore:
         self.__cur.execute('''INSERT INTO city VALUES (?,?)''', params)
         self.__conn.commit()
 
-    def __del__(self):
-        self.__conn.close()
+    @staticmethod
+    def get_api_key():
+        return DataStore.__API_KEY if len(DataStore.__API_KEY) == 32 else DEFAULT_WEATHER_API_KEY
+
+    def set_api_key(self, key):
+        if len(key) == 32:
+            self.__update_settings('api-key', key)
+        else:
+            print("Invalid api key provided. Ignoring silently.")
+
+    @staticmethod
+    def get_bg_file():
+        return DataStore.__BG_FILE if path.isfile(DataStore.__BG_FILE) else DEFAULT_BACKGROUND_IMAGE
+
+    def set_bg_file(self, file_name):
+        if path.isfile(file_name):
+            self.__update_settings('bg-image', file_name)
+        else:
+            print("Invalid background image file path provided. Ignoring silently.")
+
+    def screen(self, width, height):
+        """
+        Save the screen width and height to the db.
+        :param width: Width of screen.
+        :param height: Height of screen.
+        """
+        try:
+            self.__update_settings('screen-width', max(width, DEFAULT_SCREEN_WIDTH))
+            self.__update_settings('screen-height', max(height, DEFAULT_SCREEN_HEIGHT))
+        except sqlite3.OperationalError:
+            pass
+
+    @staticmethod
+    def get_width():
+        return int(DataStore.__SCREEN_WIDTH)
+
+    @staticmethod
+    def get_height():
+        return int(DataStore.__SCREEN_HEIGHT)

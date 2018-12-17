@@ -1,6 +1,6 @@
 import sys
 
-from halo.main import Halo
+from halo.app import Halo
 
 
 def main():

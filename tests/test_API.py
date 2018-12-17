@@ -95,48 +95,6 @@ forecast_data = json.loads("""
   ]
 }
 """)
-historical_data_hourly = json.loads("""
-{
-  "city_name": "Seattle",
-  "state_code": "WA",
-  "country_code": "US",
-  "timezone": "America/New_York",
-  "lat": "47.61",
-  "lon": "-122.33",
-  "sources": [
-    "12345-89083"
-  ],
-  "data": [
-    {
-      "ts": 1451606400,
-      "datetime": "2016-01-01:00",
-      "slp": 1020.1,
-      "pres": 845,
-      "rh": 85,
-      "dewpt": -1.5,
-      "temp": -1.2,
-      "wind_spd": 14.7,
-      "wind_dir": 325,
-      "uv": 4,
-      "ghi": 1500,
-      "dhi": 200,
-      "dni": 400,
-      "h_angle": 15,
-      "elev_angle": 27.5,
-      "pod": "n",
-      "weather": {
-        "icon": "s01n",
-        "code": "601",
-        "description": "Light Snow"
-      },
-      "precip": 3,
-      "precip6h": 6,
-      "snow": 30,
-      "snow6h": 60
-    }
-  ]
-}
-""")
 chart_data = json.loads("""
 {
   "city_name": "Raleigh",
@@ -226,6 +184,48 @@ history_daily_data = json.loads("""
   ]
 }
 """)
+historical_data_hourly = json.loads("""
+{
+  "city_name": "Seattle",
+  "state_code": "WA",
+  "country_code": "US",
+  "timezone": "America/New_York",
+  "lat": "47.61",
+  "lon": "-122.33",
+  "sources": [
+    "12345-89083"
+  ],
+  "data": [
+    {
+      "ts": 1451606400,
+      "datetime": "2016-01-01:00",
+      "slp": 1020.1,
+      "pres": 845,
+      "rh": 85,
+      "dewpt": -1.5,
+      "temp": -1.2,
+      "wind_spd": 14.7,
+      "wind_dir": 325,
+      "uv": 4,
+      "ghi": 1500,
+      "dhi": 200,
+      "dni": 400,
+      "h_angle": 15,
+      "elev_angle": 27.5,
+      "pod": "n",
+      "weather": {
+        "icon": "s01n",
+        "code": "601",
+        "description": "Light Snow"
+      },
+      "precip": 3,
+      "precip6h": 6,
+      "snow": 30,
+      "snow6h": 60
+    }
+  ]
+}
+""")
 MOCK_DATA = None
 
 
@@ -244,28 +244,31 @@ def mock_request(*args, **kwargs):
         return FakeResponse(500, MOCK_DATA)
     elif "ip=0.0.0.3" in args[0]:
         return FakeResponse(429, MOCK_DATA)
-    if "3hourly" in args[0]:
-        return FakeResponse(200, chart_data)
-    elif "history/hourly" in args[0]:
-        return FakeResponse(200, historical_data_hourly)
     return FakeResponse(200, MOCK_DATA)
 
 
 class TestAPI(TestCase):
+    """
+    Tests each and every :class:`API` methods.
+    """
     def setUp(self):
         TestCase.setUp(self)
         self.api = API()
+
+    def errors_check(self, fn, *args):
+        """Just a wrapper to be reused for error checking."""
+        with self.assertRaises(NotFound):
+            fn("ip=0.0.0.1", *args)
+        with self.assertRaises(APIError):
+            fn("ip=0.0.0.2", *args)
+        with self.assertRaises(RateLimitReached):
+            fn("ip=0.0.0.3", *args)
 
     @mock.patch('requests.get', side_effect=mock_request)
     def test_get_current_weather(self, mock_get):
         global MOCK_DATA
         MOCK_DATA = current
-        with self.assertRaises(NotFound):
-            self.api.get_current_weather("ip=0.0.0.1")
-        with self.assertRaises(APIError):
-            self.api.get_current_weather("ip=0.0.0.2")
-        with self.assertRaises(RateLimitReached):
-            self.api.get_current_weather("ip=0.0.0.3")
+        self.errors_check(self.api.get_current_weather)
 
         city, city_tz, current_weather = self.api.get_current_weather("ip=auto")
         self.assertIsNotNone(city, "Invalid city.")
@@ -278,30 +281,36 @@ class TestAPI(TestCase):
     def test_get_forecast_weather(self, mock_get):
         global MOCK_DATA
         MOCK_DATA = forecast_data
-        with self.assertRaises(NotFound):
-            self.api.get_forecast_weather("ip=0.0.0.1")
-        with self.assertRaises(APIError):
-            self.api.get_forecast_weather("ip=0.0.0.2")
-        with self.assertRaises(RateLimitReached):
-            self.api.get_forecast_weather("ip=0.0.0.3")
+        self.errors_check(self.api.get_forecast_weather)
 
-        forecast_weather, chart = self.api.get_forecast_weather("ip=auto")
+        forecast_weather = self.api.get_forecast_weather("ip=auto")
         self.assertIsNotNone(forecast_weather, "Invalid forecast data.")
+
+    @mock.patch('requests.get', side_effect=mock_request)
+    def test_get_forecast_weather_chart(self, mock_get):
+        global MOCK_DATA
+        MOCK_DATA = chart_data
+        self.errors_check(self.api.get_forecast_weather_chart)
+
+        chart = self.api.get_forecast_weather_chart("ip=auto")
         self.assertIsNotNone(chart, "Invalid forecast chart data.")
 
     @mock.patch('requests.get', side_effect=mock_request)
     def test_get_weather_history(self, mock_get):
         global MOCK_DATA
         MOCK_DATA = history_daily_data
-        with self.assertRaises(NotFound):
-            self.api.get_weather_history("ip=0.0.0.1", "America/New_York")
-        with self.assertRaises(APIError):
-            self.api.get_weather_history("ip=0.0.0.2", "America/New_York")
-        with self.assertRaises(RateLimitReached):
-            self.api.get_weather_history("ip=0.0.0.3", "America/New_York")
+        self.errors_check(self.api.get_weather_history, "America/New_York")
 
-        history_weather, chart = self.api.get_weather_history("ip=auto", "America/New_York")
+        history_weather = self.api.get_weather_history("ip=auto", "America/New_York")
         self.assertIsNotNone(history_weather, "Invalid history data.")
+
+    @mock.patch('requests.get', side_effect=mock_request)
+    def test_get_weather_history_chart(self, mock_get):
+        global MOCK_DATA
+        MOCK_DATA = historical_data_hourly
+        self.errors_check(self.api.get_weather_history_chart, "America/New_York")
+
+        chart = self.api.get_weather_history_chart("ip=auto", "America/New_York")
         self.assertIsNotNone(chart, "Invalid history chart data.")
 
 

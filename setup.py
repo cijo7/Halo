@@ -1,21 +1,30 @@
 import os
 
 from setuptools import setup
-from halo.settings import DEBUG
+from halo.settings import DEBUG, VERSION
 
 if DEBUG:
     print("You cannot build or install in debug mode.")
     exit(1)
 
+
+def get_long_description():
+    description = []
+    with open('README.md') as f:
+        description.append(f.read())
+
+
 setup(name='Halo',
-      version='0.1.1',
-      description='The weather app',
+      version=VERSION,
+      description='The weather app.',
+      long_description=get_long_description(),
       author='Cijo Saju',
       author_email='hello@cijo.me',
       license='MIT',
       packages=['halo'],
+      url='https://github.com/cijo7/Halo',
       entry_points={
-          "console_scripts": [
+          "gui_scripts": [
               "halo = halo.__main__:main",
           ]
       },

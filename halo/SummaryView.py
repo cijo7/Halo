@@ -11,7 +11,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # noqa: E402
 
 rcParams['font.family'] = 'sans-serif'
-rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
+rcParams['font.sans-serif'] = ['Lato']
 
 
 class SummaryView:
