@@ -22,7 +22,8 @@ class SummaryView:
         """
         Initialises charting and summary.
 
-        :param single_day_mode: Set to true to render summary of single item(used in historic view).
+        :param single_day_mode: Set to true to render
+        summary of single item(used in historic view).
         """
         self.single_day_mode = single_day_mode
         self.view = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -74,6 +75,12 @@ class SummaryView:
         return self.view
 
     def render(self, weather_data, chart_data):
+        """
+        Update the GUI data.
+
+        :param weather_data: Weather data
+        :param chart_data: Charting data
+        """
         # Summary
         for weather, box in zip(weather_data, self.items):
             box[2].set_text(str(int(weather['temp'])) + "°C")

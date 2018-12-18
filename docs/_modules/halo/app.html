@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>halo.app &mdash; Halo 0.1.2 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Halo
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Code Documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../halo.html">Halo</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Halo</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>halo.app</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for halo.app</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span> <span class="nn">concurrent.futures</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">gi</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">rcParams</span>
+
+<span class="kn">from</span> <span class="nn">halo.API</span> <span class="k">import</span> <span class="n">API</span><span class="p">,</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">RateLimitReached</span><span class="p">,</span> <span class="n">NotFound</span>
+<span class="kn">from</span> <span class="nn">halo.DataStore</span> <span class="k">import</span> <span class="n">DataStore</span>
+<span class="kn">from</span> <span class="nn">halo.Icon</span> <span class="k">import</span> <span class="n">Icon</span>
+<span class="kn">from</span> <span class="nn">halo.Place</span> <span class="k">import</span> <span class="n">PlaceDialog</span>
+<span class="kn">from</span> <span class="nn">halo.Preference</span> <span class="k">import</span> <span class="n">PreferenceDialog</span>
+<span class="kn">from</span> <span class="nn">halo.SummaryView</span> <span class="k">import</span> <span class="n">SummaryView</span>
+<span class="kn">from</span> <span class="nn">halo.settings</span> <span class="k">import</span> <span class="n">BASE</span><span class="p">,</span> <span class="n">VERSION</span>
+
+<span class="n">gi</span><span class="o">.</span><span class="n">require_version</span><span class="p">(</span><span class="s2">&quot;Gtk&quot;</span><span class="p">,</span> <span class="s2">&quot;3.0&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">gi.repository</span> <span class="k">import</span> <span class="n">Gtk</span><span class="p">,</span> <span class="n">GdkPixbuf</span><span class="p">,</span> <span class="n">Gdk</span><span class="p">,</span> <span class="n">GObject</span>  <span class="c1"># noqa: E402</span>
+
+<span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.family&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;sans-serif&#39;</span>
+<span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.sans-serif&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Lato&#39;</span><span class="p">,</span> <span class="s1">&#39;DejaVu Sans&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MainWindow"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow">[docs]</a><span class="k">class</span> <span class="nc">MainWindow</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">ApplicationWindow</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">application</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialises the main window</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">application</span><span class="o">=</span><span class="n">application</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">API</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">DataStore</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_tz</span> <span class="o">=</span> <span class="s2">&quot;UTC&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forecastWeather</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chartData</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyWeather</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyChartData</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LH</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LW</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Background image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlay</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Overlay</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overlay</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bg</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
+        <span class="n">scrollable_wrapper</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrollable_wrapper</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="p">)</span>
+        <span class="n">scrollable_wrapper</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">550</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlay</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrollable_wrapper</span><span class="p">)</span>
+
+        <span class="c1"># Header</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">HeaderBar</span><span class="p">()</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">set_show_close_button</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">props</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Halo&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_titlebar</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+        <span class="n">change_place</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Change City&quot;</span><span class="p">)</span>
+        <span class="n">change_place</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_city</span><span class="p">)</span>
+        <span class="n">refresh_btn</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">image</span><span class="o">=</span><span class="n">Gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">icon_name</span><span class="o">=</span><span class="s1">&#39;view-refresh-symbolic&#39;</span><span class="p">,</span>
+                                                             <span class="n">icon_size</span><span class="o">=</span><span class="n">Gtk</span><span class="o">.</span><span class="n">IconSize</span><span class="o">.</span><span class="n">BUTTON</span><span class="p">))</span>
+        <span class="n">refresh_btn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">pack_end</span><span class="p">(</span><span class="n">change_place</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">pack_end</span><span class="p">(</span><span class="n">refresh_btn</span><span class="p">)</span>
+
+        <span class="c1"># Menu</span>
+        <span class="n">menu</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuBar</span><span class="p">()</span>
+
+        <span class="n">file</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;File&quot;</span><span class="p">)</span>
+        <span class="n">file_dropdown</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Menu</span><span class="p">()</span>
+        <span class="n">file_refresh</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;Refresh&quot;</span><span class="p">)</span>
+        <span class="n">file_preference</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;Preference&quot;</span><span class="p">)</span>
+        <span class="n">file_exit</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;Exit&quot;</span><span class="p">)</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">set_submenu</span><span class="p">(</span><span class="n">file_dropdown</span><span class="p">)</span>
+        <span class="n">file_dropdown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_refresh</span><span class="p">)</span>
+        <span class="n">file_dropdown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_preference</span><span class="p">)</span>
+        <span class="n">file_dropdown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">SeparatorMenuItem</span><span class="p">())</span>
+        <span class="n">file_dropdown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file_exit</span><span class="p">)</span>
+
+        <span class="n">help_menu</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;Help&quot;</span><span class="p">)</span>
+        <span class="n">help_dropdown</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Menu</span><span class="p">()</span>
+        <span class="n">help_about</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MenuItem</span><span class="p">(</span><span class="s2">&quot;About&quot;</span><span class="p">)</span>
+        <span class="n">help_menu</span><span class="o">.</span><span class="n">set_submenu</span><span class="p">(</span><span class="n">help_dropdown</span><span class="p">)</span>
+        <span class="n">help_dropdown</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">help_about</span><span class="p">)</span>
+
+        <span class="n">file_refresh</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">)</span>
+        <span class="n">file_preference</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_preference</span><span class="p">)</span>
+        <span class="n">file_exit</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="n">application</span><span class="o">.</span><span class="n">quit</span><span class="p">())</span>
+        <span class="n">help_about</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;activate&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_about</span><span class="p">)</span>
+        <span class="n">menu</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">menu</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">help_menu</span><span class="p">)</span>
+        <span class="n">header</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">menu</span><span class="p">)</span>
+
+        <span class="c1"># Weather Panel</span>
+        <span class="n">tm</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">spacing</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="n">Gtk</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="n">Gtk</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">top</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">spacing</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">view</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="n">Gtk</span><span class="o">.</span><span class="n">Orientation</span><span class="o">.</span><span class="n">VERTICAL</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">set_homogeneous</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">set_homogeneous</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">place</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_follow</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_follow</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_follow</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;t_follow&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;place&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">)</span>
+        <span class="n">view</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;box&quot;</span><span class="p">)</span>
+
+        <span class="n">tm</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">tm</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_follow</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">tm</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">left</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">top</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="n">top</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+        <span class="c1"># Summary and Trend View</span>
+        <span class="n">switcher</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">StackSwitcher</span><span class="p">()</span>
+        <span class="n">stack_area</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Stack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forecastArea</span> <span class="o">=</span> <span class="n">SummaryView</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">historyArea</span> <span class="o">=</span> <span class="n">SummaryView</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">add_titled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">historyArea</span><span class="o">.</span><span class="n">get_view</span><span class="p">(),</span> <span class="s2">&quot;history&quot;</span><span class="p">,</span> <span class="s2">&quot;History&quot;</span><span class="p">)</span>
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">add_titled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecastArea</span><span class="o">.</span><span class="n">get_view</span><span class="p">(),</span> <span class="s2">&quot;forecast&quot;</span><span class="p">,</span> <span class="s2">&quot;Forecast&quot;</span><span class="p">)</span>
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">set_transition_type</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">StackTransitionType</span><span class="o">.</span><span class="n">SLIDE_LEFT_RIGHT</span><span class="p">)</span>
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">set_transition_duration</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">set_homogeneous</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">switcher</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s2">&quot;toggle&quot;</span><span class="p">)</span>
+        <span class="n">switcher</span><span class="o">.</span><span class="n">set_opacity</span><span class="p">(</span><span class="mf">0.92</span><span class="p">)</span>
+        <span class="n">switcher</span><span class="o">.</span><span class="n">set_stack</span><span class="p">(</span><span class="n">stack_area</span><span class="p">)</span>
+        <span class="n">sw_b</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">spacing</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">sw_b</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">switcher</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+
+        <span class="n">view</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="n">view</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">sw_b</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">view</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">stack_area</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlay</span><span class="o">.</span><span class="n">add_overlay</span><span class="p">(</span><span class="n">view</span><span class="p">)</span>
+
+        <span class="c1"># Styling</span>
+        <span class="n">screen</span> <span class="o">=</span> <span class="n">Gdk</span><span class="o">.</span><span class="n">Screen</span><span class="p">()</span><span class="o">.</span><span class="n">get_default</span><span class="p">()</span>
+        <span class="n">css_provider</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">CssProvider</span><span class="p">()</span>
+        <span class="n">css_provider</span><span class="o">.</span><span class="n">load_from_path</span><span class="p">(</span><span class="n">BASE</span> <span class="o">+</span> <span class="s1">&#39;/style.css&#39;</span><span class="p">)</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">StyleContext</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">add_provider_for_screen</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">css_provider</span><span class="p">,</span>
+                                        <span class="n">Gtk</span><span class="o">.</span><span class="n">STYLE_PROVIDER_PRIORITY_USER</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_default_size</span><span class="p">(</span><span class="n">DataStore</span><span class="o">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">DataStore</span><span class="o">.</span><span class="n">get_height</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">WindowPosition</span><span class="o">.</span><span class="n">CENTER</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s1">&#39;check-resize&#39;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">w</span><span class="p">:</span>  <span class="bp">self</span><span class="o">.</span><span class="n">check_resize</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_icon_from_file</span><span class="p">(</span><span class="n">BASE</span> <span class="o">+</span> <span class="s2">&quot;/assets/halo.svg&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">()</span>
+
+        <span class="n">GObject</span><span class="o">.</span><span class="n">timeout_add_seconds</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_time</span><span class="p">)</span>
+        <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">)</span>
+        <span class="n">stack_area</span><span class="o">.</span><span class="n">set_visible_child_name</span><span class="p">(</span><span class="s2">&quot;forecast&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MainWindow.check_resize"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.check_resize">[docs]</a>    <span class="k">def</span> <span class="nf">check_resize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resize the background image when window is resized</span>
+<span class="sd">        and store new screen size to db.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">screen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_size</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">LW</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">width</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">LH</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">screen</span><span class="o">.</span><span class="n">height</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">screen</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+            <span class="n">buff</span> <span class="o">=</span> <span class="n">GdkPixbuf</span><span class="o">.</span><span class="n">Pixbuf</span><span class="o">.</span><span class="n">new_from_file</span><span class="p">(</span><span class="n">DataStore</span><span class="o">.</span><span class="n">get_bg_file</span><span class="p">())</span>
+            <span class="n">buff</span> <span class="o">=</span> <span class="n">buff</span><span class="o">.</span><span class="n">scale_simple</span><span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">screen</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">GdkPixbuf</span><span class="o">.</span><span class="n">InterpType</span><span class="o">.</span><span class="n">BILINEAR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bg</span><span class="o">.</span><span class="n">set_from_pixbuf</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">screen</span><span class="p">(</span><span class="n">screen</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">screen</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LW</span> <span class="o">=</span> <span class="n">screen</span><span class="o">.</span><span class="n">width</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LH</span> <span class="o">=</span> <span class="n">screen</span><span class="o">.</span><span class="n">height</span></div>
+
+    <span class="c1"># noinspection PyUnusedLocal</span>
+<div class="viewcode-block" id="MainWindow.switch_city"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.switch_city">[docs]</a>    <span class="k">def</span> <span class="nf">switch_city</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Change the city for which weather data is displayed&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">PlaceDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">OK</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_city</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">get_city</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.show_preference"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.show_preference">[docs]</a>    <span class="k">def</span> <span class="nf">show_preference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shows the Preference dialog.</span>
+
+<span class="sd">        :param w: Widget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">preference</span> <span class="o">=</span> <span class="n">PreferenceDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">preference</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LH</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># This will force redraw of background on window</span>
+        <span class="n">preference</span><span class="o">.</span><span class="n">save_preference</span><span class="p">()</span>
+        <span class="n">preference</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.show_about"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.show_about">[docs]</a>    <span class="k">def</span> <span class="nf">show_about</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Shows the about dialog.</span>
+
+<span class="sd">        :param w: Widget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">about</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">AboutDialog</span><span class="p">(</span><span class="n">transient_for</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">modal</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">buff</span> <span class="o">=</span> <span class="n">GdkPixbuf</span><span class="o">.</span><span class="n">Pixbuf</span><span class="o">.</span><span class="n">new_from_file</span><span class="p">(</span><span class="n">BASE</span> <span class="o">+</span> <span class="s2">&quot;/assets/halo.svg&quot;</span><span class="p">)</span>
+        <span class="n">buff</span> <span class="o">=</span> <span class="n">buff</span><span class="o">.</span><span class="n">scale_simple</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="n">GdkPixbuf</span><span class="o">.</span><span class="n">InterpType</span><span class="o">.</span><span class="n">BILINEAR</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_logo</span><span class="p">(</span><span class="n">buff</span><span class="p">)</span>
+
+        <span class="n">author</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Cijo Saju&quot;</span><span class="p">]</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_program_name</span><span class="p">(</span><span class="s2">&quot;Halo&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_license_type</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">License</span><span class="o">.</span><span class="n">MIT_X11</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_copyright</span><span class="p">(</span><span class="s2">&quot;Copyrights © </span><span class="si">{}</span><span class="s2"> Cijo Saju&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y&quot;</span><span class="p">)))</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_authors</span><span class="p">(</span><span class="n">author</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_website</span><span class="p">(</span><span class="s2">&quot;https://github.com/cijo7/Halo&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_website_label</span><span class="p">(</span><span class="s2">&quot;View on Github&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_version</span><span class="p">(</span><span class="n">VERSION</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.fetch_weather"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.fetch_weather">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_weather</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch the weather data from online endpoints and update the ui.</span>
+
+<span class="sd">        :param city: City for which weather is fetched.</span>
+<span class="sd">        :param widget: The GUI widget that triggered search.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If no city is specified, then detect location based on user ip.</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;ip=auto&quot;</span> <span class="k">if</span> <span class="n">city</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;city=&quot;</span> <span class="o">+</span> <span class="n">city</span>
+
+        <span class="k">def</span> <span class="nf">not_found</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Display an error message when the weather data for the</span>
+<span class="sd">            searched city is not found</span>
+
+<span class="sd">            :param err: Exception</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                                      <span class="n">Gtk</span><span class="o">.</span><span class="n">ButtonsType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear_cursor</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">error</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">error</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">city</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">api_error</span><span class="p">(</span><span class="n">err</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Display an error when something goes wrong with</span>
+<span class="sd">            api call, like no internet connection and ask whether we should retry.</span>
+
+<span class="sd">            :param err: Exception</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">MessageType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                                      <span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">STOCK_QUIT</span><span class="p">,</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">CLOSE</span><span class="p">,</span>
+                                       <span class="n">Gtk</span><span class="o">.</span><span class="n">STOCK_CLEAR</span><span class="p">,</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">CANCEL</span><span class="p">,</span>
+                                       <span class="s2">&quot;Try Again&quot;</span><span class="p">,</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">OK</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">clear_cursor</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">error</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">OK</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">r</span> <span class="o">==</span> <span class="n">Gtk</span><span class="o">.</span><span class="n">ResponseType</span><span class="o">.</span><span class="n">CANCEL</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="k">as</span> <span class="n">exe</span><span class="p">:</span>
+                <span class="c1"># Current weather</span>
+                <span class="n">current</span> <span class="o">=</span> <span class="n">exe</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_current_weather</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+                <span class="c1"># Forecast</span>
+                <span class="n">forecast</span> <span class="o">=</span> <span class="n">exe</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_forecast_weather</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+                <span class="n">forecast_chart</span> <span class="o">=</span> <span class="n">exe</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_forecast_weather_chart</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_tz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+                <span class="c1"># Historic data fetched with tz returned from previous call</span>
+                <span class="n">history</span> <span class="o">=</span> <span class="n">exe</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_weather_history</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_tz</span><span class="p">)</span>
+                <span class="n">history_chart</span> <span class="o">=</span> <span class="n">exe</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">get_weather_history_chart</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_tz</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">forecastWeather</span> <span class="o">=</span> <span class="n">forecast</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chartData</span> <span class="o">=</span> <span class="n">forecast_chart</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="c1"># Render current weather</span>
+                <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">render_weather</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">historyWeather</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">historyChartData</span> <span class="o">=</span> <span class="n">history_chart</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+                <span class="c1"># Render rest of the data</span>
+                <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecastArea</span><span class="o">.</span><span class="n">render</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecastWeather</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chartData</span><span class="p">)</span>
+                <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">historyArea</span><span class="o">.</span><span class="n">render</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">historyWeather</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">historyChartData</span><span class="p">)</span>
+                <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_cursor</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">NotFound</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">not_found</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">APIError</span><span class="p">,</span> <span class="n">RateLimitReached</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">GObject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">api_error</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.render_weather"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.render_weather">[docs]</a>    <span class="k">def</span> <span class="nf">render_weather</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the current weather info of currently chosen city&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="o">.</span><span class="n">set_from_pixbuf</span><span class="p">(</span><span class="n">Icon</span><span class="o">.</span><span class="n">get_icon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span><span class="p">[</span><span class="s1">&#39;code&#39;</span><span class="p">],</span> <span class="mi">60</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">place</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">currentWeather</span><span class="p">[</span><span class="s1">&#39;temp&#39;</span><span class="p">]))</span> <span class="o">+</span> <span class="s2">&quot;°&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_time</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="MainWindow.refresh"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.refresh">[docs]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch the latest data into the ui&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">widget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">set_sensitive</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">busy_cursor</span><span class="p">()</span>
+        <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fetch_weather</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="p">,</span> <span class="n">widget</span><span class="p">))</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+    <span class="c1"># noinspection PyUnusedLocal</span>
+<div class="viewcode-block" id="MainWindow.busy_cursor"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.busy_cursor">[docs]</a>    <span class="k">def</span> <span class="nf">busy_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">watch_cursor</span> <span class="o">=</span> <span class="n">Gdk</span><span class="o">.</span><span class="n">Cursor</span><span class="p">(</span><span class="n">Gdk</span><span class="o">.</span><span class="n">CursorType</span><span class="o">.</span><span class="n">WATCH</span><span class="p">)</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">win</span><span class="p">:</span>
+            <span class="n">win</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="n">watch_cursor</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.clear_cursor"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.clear_cursor">[docs]</a>    <span class="k">def</span> <span class="nf">clear_cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">arrow_cursor</span> <span class="o">=</span> <span class="n">Gdk</span><span class="o">.</span><span class="n">Cursor</span><span class="p">(</span><span class="n">Gdk</span><span class="o">.</span><span class="n">CursorType</span><span class="o">.</span><span class="n">ARROW</span><span class="p">)</span>
+        <span class="n">win</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">win</span><span class="p">:</span>
+            <span class="n">win</span><span class="o">.</span><span class="n">set_cursor</span><span class="p">(</span><span class="n">arrow_cursor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">widget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">set_sensitive</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MainWindow.update_time"><a class="viewcode-back" href="../../halo.app.html#halo.app.MainWindow.update_time">[docs]</a>    <span class="k">def</span> <span class="nf">update_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the time shown as per the timezone of currently chosen city&quot;&quot;&quot;</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_tz</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%I:%M &quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t_follow</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%p&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%A, </span><span class="si">%d</span><span class="s2"> %B %Y&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<div class="viewcode-block" id="Halo"><a class="viewcode-back" href="../../halo.app.html#halo.app.Halo">[docs]</a><span class="k">class</span> <span class="nc">Halo</span><span class="p">(</span><span class="n">Gtk</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Gtk</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Halo.do_activate"><a class="viewcode-back" href="../../halo.app.html#halo.app.Halo.do_activate">[docs]</a>    <span class="k">def</span> <span class="nf">do_activate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">MainWindow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Halo.do_startup"><a class="viewcode-back" href="../../halo.app.html#halo.app.Halo.do_startup">[docs]</a>    <span class="k">def</span> <span class="nf">do_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Gtk</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">do_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">Halo</span><span class="p">()</span>
+    <span class="n">exit_status</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">exit_status</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Cijo Saju
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

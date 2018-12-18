@@ -121,9 +121,19 @@ class DataStore:
 
     @staticmethod
     def get_api_key():
+        """
+        Retrieves the api key
+
+        :return: API key
+        """
         return DataStore.__API_KEY if len(DataStore.__API_KEY) == 32 else DEFAULT_WEATHER_API_KEY
 
     def set_api_key(self, key):
+        """
+        Writes the new API key if it's valid.
+
+        :param key: API key
+        """
         if len(key) == 32:
             self.__update_settings('api-key', key)
         else:
@@ -131,9 +141,19 @@ class DataStore:
 
     @staticmethod
     def get_bg_file():
+        """
+        Retrieves the background image path.
+
+        :return: image file path
+        """
         return DataStore.__BG_FILE if path.isfile(DataStore.__BG_FILE) else DEFAULT_BACKGROUND_IMAGE
 
     def set_bg_file(self, file_name):
+        """
+        Writes the new background image path if it exists.
+
+        :param file_name: file path
+        """
         if path.isfile(file_name):
             self.__update_settings('bg-image', file_name)
         else:
@@ -154,8 +174,10 @@ class DataStore:
 
     @staticmethod
     def get_width():
+        """Retrieves the screen width."""
         return int(DataStore.__SCREEN_WIDTH)
 
     @staticmethod
     def get_height():
+        """Retrieves the screen height."""
         return int(DataStore.__SCREEN_HEIGHT)

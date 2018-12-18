@@ -15,6 +15,8 @@ class PreferenceDialog(Gtk.Dialog):
     def __init__(self, parent):
         """
         Initialises the Preference dialogue.
+
+        :param parent: parent
         """
         super().__init__(title="Preference", transient_for=parent, modal=True)
         self.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE)
@@ -63,6 +65,11 @@ class PreferenceDialog(Gtk.Dialog):
         store.refresh_preference()
 
     def file_chooser(self, widget):
+        """
+        Displays the file picker.
+
+        :param widget: button
+        """
         dialog = Gtk.FileChooserDialog(
             "Please choose a background image",
             self,
@@ -95,6 +102,11 @@ class PreferenceDialog(Gtk.Dialog):
         dialog.destroy()
 
     def file_preview(self, widget):
+        """
+        Shows the preview of the images selected.
+
+        :param widget: file picker dialog
+        """
         f = widget.get_preview_filename()
         try:
             buff = GdkPixbuf.Pixbuf.new_from_file(f)

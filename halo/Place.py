@@ -47,8 +47,18 @@ class PlaceDialog(Gtk.Dialog):
         self.show_all()
 
     def btn_click(self, widget):
+        """
+        Select a city.
+
+        :param widget: button
+        """
         self.place.set_text(widget.get_label())
         self.response(Gtk.ResponseType.OK)
 
     def get_city(self):
+        """
+        Retrieves the chosen city name.
+
+        :return: city name
+        """
         return self.place.get_text()
