@@ -4,6 +4,7 @@ Handles the data storage and retrieval.
 
 import sqlite3
 import time
+from functools import wraps
 from os import path
 
 from halo.settings import DEFAULT_DB_LOCATION, DEFAULT_WEATHER_API_KEY, \
@@ -12,6 +13,7 @@ from halo.settings import DEFAULT_DB_LOCATION, DEFAULT_WEATHER_API_KEY, \
 
 def query(fn):
     """A decorator which ensures if a database lock ever happen, then sqlite query is retired seamlessly."""
+    @wraps(fn)
     def wrap(*args, **kwargs):
         while True:
             try:
@@ -31,19 +33,17 @@ class DataStore:
     """sqlite3 database class that store user data and app settings."""
     __SCREEN_HEIGHT = DEFAULT_SCREEN_HEIGHT
     __SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH
-    __DB_LOCATION = DEFAULT_DB_LOCATION
     __API_KEY = DEFAULT_WEATHER_API_KEY
     __BG_FILE = DEFAULT_BACKGROUND_IMAGE
 
-    def __init__(self, db_location=None):
+    def __init__(self, db_location=DEFAULT_DB_LOCATION):
         """
         Initialises the connection and create a cursor.
 
         :param db_location: File location of database.
         """
-        if db_location:
-            DataStore.__DB_LOCATION = db_location
-        self.__conn = sqlite3.connect(DataStore.__DB_LOCATION)
+        self.__DB_LOCATION = db_location
+        self.__conn = sqlite3.connect(self.__DB_LOCATION)
         if self.__conn is None:
             raise sqlite3.DatabaseError("Could not get a database connection")
         self.__cur = self.__conn.cursor()

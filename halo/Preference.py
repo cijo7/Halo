@@ -23,7 +23,7 @@ class PreferenceDialog(Gtk.Dialog):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
 
         api = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        txt = Gtk.Label("Your API Key")
+        txt = Gtk.Label(label="Your API Key")
         desc = Gtk.Label()
         desc.set_markup('<a href="https://www.weatherbit.io/account/create">Sign up</a>'
                         ' to create new API key.')
@@ -38,7 +38,7 @@ class PreferenceDialog(Gtk.Dialog):
 
         bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         self.preview = Gtk.Image()
-        txt = Gtk.Label("Choose a Background Image")
+        txt = Gtk.Label(label="Choose a Background Image")
         txt.set_alignment(0, 0)
         self.bg = Gtk.Entry()
         self.bg.set_text(DataStore.get_bg_file())
