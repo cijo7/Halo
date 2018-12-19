@@ -18,7 +18,8 @@ from halo.SummaryView import SummaryView
 from halo.settings import BASE, VERSION
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GdkPixbuf, Gdk, GObject  # noqa: E402
+gi.require_version('Keybinder', '3.0')
+from gi.repository import Gtk, GdkPixbuf, Gdk, GObject, Keybinder  # noqa: E402
 
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
@@ -172,11 +173,22 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.connect('check-resize', lambda w:  self.check_resize())
         self.set_icon_from_file(BASE + "/assets/halo.svg")
+        key_refresh = "<Ctrl>R"
+        key_city_change = "C"
+        Keybinder.init()
+        Keybinder.bind(key_refresh, self.shortcuts)
+        Keybinder.bind(key_city_change, self.shortcuts)
         self.show_all()
 
         GObject.timeout_add_seconds(2, self.update_time)
         GObject.idle_add(self.refresh)
         stack_area.set_visible_child_name("forecast")
+
+    def shortcuts(self, key, user_data=None):
+        if key == '<Ctrl>R':
+            self.refresh()
+        elif key == 'C':
+            self.switch_city()
 
     def check_resize(self):
         """
@@ -196,7 +208,7 @@ class MainWindow(Gtk.ApplicationWindow):
             self.LH = screen.height
 
     # noinspection PyUnusedLocal
-    def switch_city(self, widget):
+    def switch_city(self, widget=None):
         """Change the city for which weather data is displayed"""
         dialog = PlaceDialog(self)
         response = dialog.run()
