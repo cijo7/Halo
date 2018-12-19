@@ -166,13 +166,22 @@
 <p>Handles the data storage and retrieval.</p>
 <dl class="class">
 <dt id="halo.DataStore.DataStore">
-<em class="property">class </em><code class="descclassname">halo.DataStore.</code><code class="descname">DataStore</code><span class="sig-paren">(</span><em>db_location=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/DataStore.html#DataStore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.DataStore.DataStore" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">halo.DataStore.</code><code class="descname">DataStore</code><span class="sig-paren">(</span><em>db_location='/home/cijo/.halo/database.sqlite'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/DataStore.html#DataStore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.DataStore.DataStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>sqlite3 database class that store user data and app settings.</p>
 <dl class="method">
 <dt id="halo.DataStore.DataStore.add_city">
-<code class="descname">add_city</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/DataStore.html#DataStore.add_city"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.DataStore.DataStore.add_city" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">add_city</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/halo/DataStore.html#DataStore.add_city"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#halo.DataStore.DataStore.add_city" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the city to db if it doesn’t exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – a tuple of city and country code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="staticmethod">
 <dt id="halo.DataStore.DataStore.get_api_key">
