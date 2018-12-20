@@ -18,8 +18,7 @@ from halo.SummaryView import SummaryView
 from halo.settings import BASE, VERSION
 
 gi.require_version("Gtk", "3.0")
-gi.require_version('Keybinder', '3.0')
-from gi.repository import Gtk, GdkPixbuf, Gdk, GObject, Keybinder  # noqa: E402
+from gi.repository import Gtk, GdkPixbuf, Gdk, GObject  # noqa: E402
 
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
@@ -58,41 +57,48 @@ class MainWindow(Gtk.ApplicationWindow):
         header.props.title = "Halo"
         self.set_titlebar(header)
 
-        change_place = Gtk.Button(label="Change City")
-        change_place.connect("clicked", self.switch_city)
         refresh_btn = Gtk.Button(label=None, image=Gtk.Image(icon_name='view-refresh-symbolic',
                                                              icon_size=Gtk.IconSize.BUTTON))
         refresh_btn.connect("clicked", self.refresh)
-        header.pack_end(change_place)
+
+        # Dropdown menu
+        menubar = Gtk.MenuBar()
+        ac_grp = Gtk.AccelGroup()
+        self.add_accel_group(ac_grp)
+
+        menu = Gtk.ImageMenuItem()
+        menu.set_image(Gtk.Image(icon_name='view-more-symbolic',
+                                 icon_size=Gtk.IconSize.MENU))
+        menu.set_always_show_image(True)
+        menu_dropdown = Gtk.Menu()
+
+        menu_refresh = Gtk.MenuItem("Refresh", ac_grp)
+        menu_preference = Gtk.MenuItem("Preference")
+        menu_city_change = Gtk.MenuItem("Change City")
+        menu_about = Gtk.MenuItem("About")
+        menu_exit = Gtk.MenuItem("Exit")
+
+        menu_refresh.add_accelerator("activate", ac_grp, ord('R'), Gdk.ModifierType.CONTROL_MASK,
+                                     Gtk.AccelFlags.VISIBLE)
+        menu_city_change.add_accelerator("activate", ac_grp, ord('C'), 0, Gtk.AccelFlags.VISIBLE)
+
+        menu_refresh.connect('activate', self.refresh)
+        menu_preference.connect('activate', self.show_preference)
+        menu_city_change.connect('activate', self.switch_city)
+        menu_about.connect('activate', self.show_about)
+        menu_exit.connect('activate', lambda w: application.quit())
+
+        menu_dropdown.append(menu_refresh)
+        menu_dropdown.append(menu_preference)
+        menu_dropdown.append(menu_city_change)
+        menu_dropdown.append(menu_about)
+        menu_dropdown.append(Gtk.SeparatorMenuItem())
+        menu_dropdown.append(menu_exit)
+        menu.set_submenu(menu_dropdown)
+        menubar.append(menu)
+
+        header.pack_end(menubar)
         header.pack_end(refresh_btn)
-
-        # Menu
-        menu = Gtk.MenuBar()
-
-        file = Gtk.MenuItem("File")
-        file_dropdown = Gtk.Menu()
-        file_refresh = Gtk.MenuItem("Refresh")
-        file_preference = Gtk.MenuItem("Preference")
-        file_exit = Gtk.MenuItem("Exit")
-        file.set_submenu(file_dropdown)
-        file_dropdown.append(file_refresh)
-        file_dropdown.append(file_preference)
-        file_dropdown.append(Gtk.SeparatorMenuItem())
-        file_dropdown.append(file_exit)
-
-        help_menu = Gtk.MenuItem("Help")
-        help_dropdown = Gtk.Menu()
-        help_about = Gtk.MenuItem("About")
-        help_menu.set_submenu(help_dropdown)
-        help_dropdown.append(help_about)
-
-        file_refresh.connect('activate', self.refresh)
-        file_preference.connect('activate', self.show_preference)
-        file_exit.connect('activate', lambda w: application.quit())
-        help_about.connect('activate', self.show_about)
-        menu.append(file)
-        menu.append(help_menu)
-        header.pack_start(menu)
 
         # Weather Panel
         tm = Gtk.Box(spacing=0)
@@ -171,24 +177,13 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(DataStore.get_width(), DataStore.get_height())
         self.set_position(Gtk.WindowPosition.CENTER)
 
-        self.connect('check-resize', lambda w:  self.check_resize())
+        self.connect('check-resize', lambda w: self.check_resize())
         self.set_icon_from_file(BASE + "/assets/halo.svg")
-        key_refresh = "<Ctrl>R"
-        key_city_change = "C"
-        Keybinder.init()
-        Keybinder.bind(key_refresh, self.shortcuts)
-        Keybinder.bind(key_city_change, self.shortcuts)
         self.show_all()
 
         GObject.timeout_add_seconds(2, self.update_time)
         GObject.idle_add(self.refresh)
         stack_area.set_visible_child_name("forecast")
-
-    def shortcuts(self, key, user_data=None):
-        if key == '<Ctrl>R':
-            self.refresh()
-        elif key == 'C':
-            self.switch_city()
 
     def check_resize(self):
         """

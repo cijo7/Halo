@@ -50,6 +50,6 @@ setup(name='Halo',
           (os.getenv('HOME') + '/.local/share/icons', ['halo/assets/halo.svg']),
       ],
       package_data={
-          '': ['*.css', 'assets/*', 'assets/icon/*']
+          '': ['*.css', 'assets/*.*', 'assets/icon/*']
       },
       zip_safe=False)

@@ -15,8 +15,26 @@ Halo is smart enough to identify your location based on your ip.
 ## Installation
 
 ### Ubuntu
-You can [download](https://github.com/cijo7/Halo/releases/download/v0.1.2/Halo-0.1.2.tar.gz) the package 
-and extract it to a suitable folder. Then you can install it by running
+
+#### Tarball
+To install from [tarball](https://github.com/cijo7/Halo/releases/download/v0.1.3/Halo-0.1.3.tar.gz),
+
+    wget https://github.com/cijo7/Halo/releases/download/v0.1.3/Halo-0.1.3.tar.gz
+
+Extract it with
+
+    tar -xf Halo-0.1.3.tar.gz
+
+Change your directory to extracted folder
+
+    cd Halo-0.1.3
+
+
+Install required binaries:
+
+    sudo apt install python3-setuptools pkg-config libcairo2-dev libgirepository1.0-dev gir1.2-gtk-3.0 python3-dev
+
+Install the package by running
 
     sudo python3 setup.py install
 
