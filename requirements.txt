@@ -2,3 +2,4 @@ pygobject
 matplotlib
 requests
 pytz
+typing

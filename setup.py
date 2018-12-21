@@ -43,7 +43,8 @@ setup(name='Halo',
           "urllib3",
           "certifi",
           "pygobject==3.30.4",
-          "matplotlib"
+          "matplotlib",
+          "typing"
       ],
       data_files=[
           (os.getenv('HOME') + '/.local/share/applications', ['halo.desktop']),
