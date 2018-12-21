@@ -15,7 +15,7 @@ from halo.Icon import Icon
 from halo.Place import PlaceDialog
 from halo.Preference import PreferenceDialog
 from halo.SummaryView import SummaryView
-from halo.settings import BASE, VERSION
+from halo.settings import BASE, VERSION, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf, Gdk, GObject  # noqa: E402
@@ -48,7 +48,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.bg = Gtk.Image()
         scrollable_wrapper = Gtk.ScrolledWindow()
         scrollable_wrapper.add(self.bg)
-        scrollable_wrapper.set_size_request(700, 550)
+        scrollable_wrapper.set_size_request(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT)
         self.overlay.add(scrollable_wrapper)
 
         # Header

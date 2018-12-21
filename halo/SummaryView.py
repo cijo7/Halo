@@ -2,6 +2,7 @@ from datetime import datetime
 
 import gi
 from matplotlib import rcParams
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -18,6 +19,7 @@ class SummaryView:
     """
     Display the trends chart and daily summary of weather data.
     """
+
     def __init__(self, single_day_mode: bool = False):
         """
         Initialises charting and summary.
@@ -26,9 +28,12 @@ class SummaryView:
         summary of single item(used in historic view).
         """
         self.single_day_mode = single_day_mode
+        self.chart_data = []
         self.view = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        self.chart = Gtk.Box(spacing=10)
+        self.chart = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.summary = Gtk.Box(spacing=10)
+        self.label = Gtk.Label()
+        self.label.set_name('f_temp')
 
         # Dynamically create widgets.
         self.items = []
@@ -59,9 +64,16 @@ class SummaryView:
         self.axis.get_xaxis().set_ticks([])
         self.axis.tick_params(axis='y', colors='white')
 
-        canvas = FigureCanvas(self.fig)
-        canvas.set_size_request(500, 100)
-        self.chart.pack_start(canvas, True, True, 0)
+        self.canvas = FigureCanvas(self.fig)
+        self.canvas.set_size_request(500, 100)
+        self.annotate = self.axis.annotate("", xy=(0, 0), xytext=(20, 20), textcoords="offset points",
+                                           bbox=dict(boxstyle="round", fc="w"),
+                                           arrowprops=dict(arrowstyle="->"))
+        self.annotate.set_visible(False)
+        self.canvas.mpl_connect('motion_notify_event', self.hover)
+        self.canvas.mpl_connect('axes_leave_event', self.hide_label)
+        self.chart.pack_start(self.label, True, True, 0)
+        self.chart.pack_start(self.canvas, True, True, 0)
 
         self.view.pack_start(self.chart, False, False, 20)
         self.view.pack_start(self.summary, False, False, 15)
@@ -81,6 +93,7 @@ class SummaryView:
         :param weather_data: Weather data
         :param chart_data: Charting data
         """
+        self.chart_data = chart_data
         # Summary
         for weather, box in zip(weather_data, self.items):
             box[2].set_text(str(int(weather['temp'])) + "°C")
@@ -94,4 +107,16 @@ class SummaryView:
         self.axis.clear()
         self.axis.patch.set_visible(False)
         self.axis.get_xaxis().set_ticks([])
-        self.axis.plot(list(range(len(chart_data))), chart_data, 'w-')
+        self.annotate.set_text('w')
+        self.axis.plot(list(range(len(chart_data))), self.chart_data, 'w.-')
+
+    def hover(self, event: MouseEvent):
+        if event.inaxes is not self.axis:
+            return
+        x = int(event.xdata)
+        if x >= len(self.chart_data) or x < 0:
+            return
+        self.label.set_text(str(self.chart_data[x]) + "°")
+
+    def hide_label(self, event):
+        self.label.set_text("")
