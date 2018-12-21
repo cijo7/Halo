@@ -6,6 +6,7 @@ import sqlite3
 import time
 from functools import wraps
 from os import path
+from typing import Tuple
 
 from halo.settings import DEFAULT_DB_LOCATION, DEFAULT_WEATHER_API_KEY, \
     DEFAULT_BACKGROUND_IMAGE, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
@@ -25,7 +26,6 @@ def query(fn):
                     print("DB is in locked state. Retrying...")
                 else:
                     raise
-
     return wrap
 
 
@@ -36,7 +36,7 @@ class DataStore:
     __API_KEY = DEFAULT_WEATHER_API_KEY
     __BG_FILE = DEFAULT_BACKGROUND_IMAGE
 
-    def __init__(self, db_location=DEFAULT_DB_LOCATION):
+    def __init__(self, db_location: str = DEFAULT_DB_LOCATION):
         """
         Initialises the connection and create a cursor.
 
@@ -80,7 +80,7 @@ class DataStore:
         DataStore.__SCREEN_WIDTH = self.__fetch_settings('screen-width')
         DataStore.__SCREEN_HEIGHT = self.__fetch_settings('screen-height')
 
-    def __fetch_settings(self, name):
+    def __fetch_settings(self, name: str) -> str:
         """
         Fetches the specified settings from database.
 
@@ -91,7 +91,7 @@ class DataStore:
                                   (name,)).fetchone()[0]
 
     @query
-    def __update_settings(self, name, value):
+    def __update_settings(self, name: str, value: str):
         """
         Updates specific preference value.
 
@@ -101,7 +101,7 @@ class DataStore:
         self.__cur.execute('''UPDATE setting SET "value"=? WHERE "name"=?''', (value, name))
         self.__conn.commit()
 
-    def get_cities(self):
+    def get_cities(self) -> list:
         """
         Get a list of all the cities
 
@@ -110,7 +110,7 @@ class DataStore:
         return list(self.__cur.execute('''SELECT * FROM city'''))
 
     @query
-    def add_city(self, params):
+    def add_city(self, params: Tuple[str, str]):
         """
         Adds the city to db if it doesn't exists.
 
@@ -120,7 +120,7 @@ class DataStore:
         self.__conn.commit()
 
     @staticmethod
-    def get_api_key():
+    def get_api_key() -> str:
         """
         Retrieves the api key
 
@@ -128,7 +128,7 @@ class DataStore:
         """
         return DataStore.__API_KEY if len(DataStore.__API_KEY) == 32 else DEFAULT_WEATHER_API_KEY
 
-    def set_api_key(self, key):
+    def set_api_key(self, key: str):
         """
         Writes the new API key if it's valid.
 
@@ -140,7 +140,7 @@ class DataStore:
             print("Invalid api key provided. Ignoring silently.")
 
     @staticmethod
-    def get_bg_file():
+    def get_bg_file() -> str:
         """
         Retrieves the background image path.
 
@@ -148,7 +148,7 @@ class DataStore:
         """
         return DataStore.__BG_FILE if path.isfile(DataStore.__BG_FILE) else DEFAULT_BACKGROUND_IMAGE
 
-    def set_bg_file(self, file_name):
+    def set_bg_file(self, file_name: str):
         """
         Writes the new background image path if it exists.
 
@@ -159,7 +159,7 @@ class DataStore:
         else:
             print("Invalid background image file path provided. Ignoring silently.")
 
-    def screen(self, width, height):
+    def screen(self, width: int, height: int):
         """
         Save the screen width and height to the db.
 
@@ -167,17 +167,17 @@ class DataStore:
         :param height: Height of screen.
         """
         try:
-            self.__update_settings('screen-width', max(width, DEFAULT_SCREEN_WIDTH))
-            self.__update_settings('screen-height', max(height, DEFAULT_SCREEN_HEIGHT))
+            self.__update_settings('screen-width', str(max(width, DEFAULT_SCREEN_WIDTH)))
+            self.__update_settings('screen-height', str(max(height, DEFAULT_SCREEN_HEIGHT)))
         except sqlite3.OperationalError:
             pass
 
     @staticmethod
-    def get_width():
+    def get_width() -> int:
         """Retrieves the screen width."""
         return int(DataStore.__SCREEN_WIDTH)
 
     @staticmethod
-    def get_height():
+    def get_height() -> int:
         """Retrieves the screen height."""
         return int(DataStore.__SCREEN_HEIGHT)

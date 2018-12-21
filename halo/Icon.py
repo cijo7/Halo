@@ -14,7 +14,7 @@ class Icon:
         pass
 
     @staticmethod
-    def get_icon(status, size=50):
+    def get_icon(status: str, size: int = 50) -> GdkPixbuf.Pixbuf:
         """
         Return Weather icons as per status.
 

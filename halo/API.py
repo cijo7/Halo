@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Tuple, Dict, Any
 
 import pytz
 import requests
@@ -16,7 +17,7 @@ class API:
         self._base_url = "https://api.weatherbit.io/v2.0"
         self._headers = {'Accept': 'application/json', 'Accept-Charset': 'UTF-8'}
 
-    def get_current_weather(self, query):
+    def get_current_weather(self, query: str) -> Tuple[str, str, Dict[str, Any]]:
         """
         Fetches and returns current weather data.
 
@@ -34,7 +35,7 @@ class API:
         DataStore().add_city((res['data'][0]['city_name'], res['data'][0]['country_code']))
         return city, city_tz, current_weather
 
-    def get_forecast_weather(self, query):
+    def get_forecast_weather(self, query: str) -> list:
         """
         Fetches and returns the forecast weather data.
 
@@ -46,7 +47,7 @@ class API:
         forecast_weather = res['data']
         return forecast_weather
 
-    def get_forecast_weather_chart(self, query):
+    def get_forecast_weather_chart(self, query: str) -> list:
         """
         Fetches and returns the forecast weather chart data.
 
@@ -58,7 +59,7 @@ class API:
         chart_data = [item['temp'] for item in res['data']]
         return chart_data
 
-    def get_weather_history(self, query, tz):
+    def get_weather_history(self, query: str, tz: str) -> list:
         """
         Fetches and returns the historic weather data(1 day).
 
@@ -70,7 +71,7 @@ class API:
         history_weather = res['data']
         return history_weather
 
-    def get_weather_history_chart(self, query, tz):
+    def get_weather_history_chart(self, query: str, tz: str) -> list:
         """
         Fetches and returns the historic weather data chart data(1 day).
 
@@ -82,7 +83,7 @@ class API:
         history_chart_data = [item['temp'] for item in res['data']]
         return history_chart_data
 
-    def _url_format(self, slug, query, city_tz=None, days_count=1):
+    def _url_format(self, slug: str, query: str, city_tz: str = None, days_count: int = 1) -> str:
         if city_tz:
             start = datetime.now(pytz.timezone(city_tz)).replace(hour=0, minute=0, second=0, microsecond=0) \
                         .astimezone(pytz.utc) - timedelta(days=days_count)
@@ -96,11 +97,14 @@ class API:
             return "{base}/{slug}?{query}&key={key}".format(base=self._base_url, slug=slug,
                                                             query=query, key=DataStore.get_api_key())
 
-    def _send_request(self, url):
+    def _send_request(self, url: str) -> Any:
         try:
             r = requests.get(url, headers=self._headers)
             if r.status_code == 200:
-                return r.json()
+                try:
+                    return r.json()
+                except ValueError:
+                    raise APIError("Invalid response from server. Please try again later.")
             elif r.status_code == 204:
                 raise NotFound("The weather information for the requested city is not found.")
             elif r.status_code == 429:

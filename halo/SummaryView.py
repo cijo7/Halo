@@ -18,7 +18,7 @@ class SummaryView:
     """
     Display the trends chart and daily summary of weather data.
     """
-    def __init__(self, single_day_mode=False):
+    def __init__(self, single_day_mode: bool = False):
         """
         Initialises charting and summary.
 
@@ -66,7 +66,7 @@ class SummaryView:
         self.view.pack_start(self.chart, False, False, 20)
         self.view.pack_start(self.summary, False, False, 15)
 
-    def get_view(self):
+    def get_view(self) -> Gtk.Box:
         """
         Returns the view object for rendering ui.
 
@@ -74,7 +74,7 @@ class SummaryView:
         """
         return self.view
 
-    def render(self, weather_data, chart_data):
+    def render(self, weather_data: list, chart_data: list):
         """
         Update the GUI data.
 

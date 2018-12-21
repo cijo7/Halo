@@ -55,7 +55,7 @@ class PlaceDialog(Gtk.Dialog):
         self.place.set_text(widget.get_label())
         self.response(Gtk.ResponseType.OK)
 
-    def get_city(self):
+    def get_city(self) -> str:
         """
         Retrieves the chosen city name.
 
