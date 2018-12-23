@@ -177,7 +177,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(DataStore.get_width(), DataStore.get_height())
         self.set_position(Gtk.WindowPosition.CENTER)
 
-        self.connect('check-resize', lambda w: self.check_resize())
+        self.connect('check-resize', lambda w: self.win_resize())
         self.set_icon_from_file(BASE + "/assets/halo.svg")
         self.show_all()
 
@@ -185,7 +185,7 @@ class MainWindow(Gtk.ApplicationWindow):
         GObject.idle_add(self.refresh)
         stack_area.set_visible_child_name("forecast")
 
-    def check_resize(self):
+    def win_resize(self):
         """
         Resize the background image when window is resized
         and store new screen size to db.

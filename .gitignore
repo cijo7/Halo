@@ -6,6 +6,7 @@ Halo.egg-info/
 __pycache__/
 venv/
 dist/
+build/
 deb_dist/
 sphinx/
 *.tar.gz

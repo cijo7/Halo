@@ -7,6 +7,12 @@ Halo is smart enough to identify your location based on your ip.
   <img  src="https://github.com/cijo7/Halo/raw/master/preview.gif">
 </p>
 
+<p align="center">
+    <a href="https://snapcraft.io/halo-weather">
+      <img alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg" />
+    </a>
+</p>
+
 ## Prerequisites
 
 1. Python 3

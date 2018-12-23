@@ -66,10 +66,7 @@ class SummaryView:
 
         self.canvas = FigureCanvas(self.fig)
         self.canvas.set_size_request(500, 100)
-        self.annotate = self.axis.annotate("", xy=(0, 0), xytext=(20, 20), textcoords="offset points",
-                                           bbox=dict(boxstyle="round", fc="w"),
-                                           arrowprops=dict(arrowstyle="->"))
-        self.annotate.set_visible(False)
+
         self.canvas.mpl_connect('motion_notify_event', self.hover)
         self.canvas.mpl_connect('axes_leave_event', self.hide_label)
         self.chart.pack_start(self.label, True, True, 0)
@@ -107,8 +104,7 @@ class SummaryView:
         self.axis.clear()
         self.axis.patch.set_visible(False)
         self.axis.get_xaxis().set_ticks([])
-        self.annotate.set_text('w')
-        self.axis.plot(list(range(len(chart_data))), self.chart_data, 'w.-')
+        self.axis.plot(list(range(len(chart_data))), self.chart_data, 'w-')
 
     def hover(self, event: MouseEvent):
         if event.inaxes is not self.axis:

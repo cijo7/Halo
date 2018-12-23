@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1.3
+Encoding=UTF-8
+Name=Halo
+Comment=Weather App
+Exec=halo-weather
+Icon=${SNAP}/meta/gui/icon.svg
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;

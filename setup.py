@@ -25,24 +25,13 @@ setup(name='Halo',
       url='https://github.com/cijo7/Halo',
       entry_points={
           "gui_scripts": [
-              "halo = halo.__main__:main",
+              "halo-weather = halo.__main__:main",
           ]
       },
-      setup_requires=["pycairo==1.18.0"],
       install_requires=[
           "requests",
           "pytz",
-          "numpy",
-          "pyparsing",
-          "cycler",
-          "six",
-          "chardet",
-          "idna==2.7",
-          "kiwisolver",
-          "python-dateutil",
-          "urllib3",
-          "certifi",
-          "pygobject==3.30.4",
+          "pygobject",
           "matplotlib",
           "typing"
       ],
