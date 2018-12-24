@@ -1,5 +1,7 @@
 # Halo - The Weather App
 [![Build Status](https://travis-ci.com/cijo7/Halo.svg?branch=master)](https://travis-ci.com/cijo7/Halo)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/45bd325b322f481087bcf325ef1217ec)](https://www.codacy.com/app/cijo360/Halo)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 Halo is a weather app written in python. You can quickly view the
 weather in your city and checkout the forecast and historic temperature trends. 
@@ -73,7 +75,7 @@ user@ubuntu:~$ sudo python3 setup.py install
 After installing it, you can directly launch it either by searching for Halo among your installed apps, or from terminal by running
 
 ````sh-session
-$ halo
+$ halo-weather
 ````
 
 ### Running directly from Source
