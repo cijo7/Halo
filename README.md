@@ -1,4 +1,5 @@
 # Halo - The Weather App
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c050f40ae3a044dfb39c5d5215533000)](https://app.codacy.com/app/cijo360/Halo?utm_source=github.com&utm_medium=referral&utm_content=cijo7/Halo&utm_campaign=Badge_Grade_Settings)
 [![Build Status](https://travis-ci.com/cijo7/Halo.svg?branch=master)](https://travis-ci.com/cijo7/Halo)
 
 Halo is a weather app written in python. You can quickly view the
