@@ -108,7 +108,8 @@ class API:
             elif r.status_code == 204:
                 raise NotFound("The weather information for the requested city is not found.")
             elif r.status_code == 429:
-                raise RateLimitReached("The API rate limit has reached. Please wait till it resets.")
+                raise RateLimitReached("The API rate limit has reached. Please wait until it resets or go to "
+                                       "Menu -> Preference and enter your own API key.")
             else:
                 raise APIError("Something is broken. Please make sure your API key is valid or try again later.")
         except requests.ConnectionError:
