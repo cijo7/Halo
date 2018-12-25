@@ -18,7 +18,7 @@ from halo.SummaryView import SummaryView
 from halo.settings import BASE, VERSION, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GdkPixbuf, Gdk, GObject  # noqa: E402
+from gi.repository import Gtk, GdkPixbuf, Gdk, GObject, GLib  # noqa: E402
 
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['Lato', 'DejaVu Sans']
@@ -177,7 +177,8 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(DataStore.get_width(), DataStore.get_height())
         self.set_position(Gtk.WindowPosition.CENTER)
 
-        self.connect('check-resize', lambda w: self.win_resize())
+        self.connect('size-allocate', lambda w, rect: GObject.idle_add(
+            self.win_resize, rect, priority=GLib.PRIORITY_HIGH))
         self.set_icon_from_file(BASE + "/assets/halo.svg")
         self.show_all()
 
@@ -185,15 +186,13 @@ class MainWindow(Gtk.ApplicationWindow):
         GObject.idle_add(self.refresh)
         stack_area.set_visible_child_name("forecast")
 
-    def win_resize(self):
+    def win_resize(self, screen):
         """
         Resize the background image when window is resized
         and store new screen size to db.
         """
-        screen = self.get_size()
         if self.LW is not screen.width or self.LH is not screen.height:
             self.bg.set_size_request(screen.width, screen.height)
-
             buff = GdkPixbuf.Pixbuf.new_from_file(DataStore.get_bg_file())
             buff = buff.scale_simple(screen.width, screen.height, GdkPixbuf.InterpType.BILINEAR)
             self.bg.set_from_pixbuf(buff)

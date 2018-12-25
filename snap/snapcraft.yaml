@@ -54,11 +54,8 @@ parts:
       - python3-setuptools
       - pkg-config
     stage-packages:
-      - python3-gi
-      - python3-gi-cairo
       - python3-cairocffi
       - gir1.2-gtk-3.0
-      - gir1.2-gdkpixbuf-2.0
       - libcanberra-gtk3-0
       - libcanberra-gtk3-module
       - ttf-ubuntu-font-family
