@@ -24,7 +24,7 @@ class API:
         :param query: search query
         :return: a tuple containing city, city timezone, current weather data.
         """
-        res = self._send_request(self._url_format("current", query))
+        res = self._send_request(self._url_format("current", query), "weather info")
         current_weather = {
             'status': res['data'][0]['weather']['description'],
             'code': res['data'][0]['weather']['code'],
@@ -43,7 +43,7 @@ class API:
         :return: forecast weather data.
         """
         query += "&days=5"
-        res = self._send_request(self._url_format("forecast/daily", query))
+        res = self._send_request(self._url_format("forecast/daily", query), "forecast data")
         forecast_weather = res['data']
         return forecast_weather
 
@@ -55,7 +55,7 @@ class API:
         :return: charting data.
         """
         query += "&days=5"
-        res = self._send_request(self._url_format("forecast/3hourly", query))
+        res = self._send_request(self._url_format("forecast/3hourly", query), "forecast chart")
         chart_data = [item['temp'] for item in res['data']]
         return chart_data
 
@@ -67,7 +67,7 @@ class API:
         :param tz: city timezone
         :return: historic weather data.
         """
-        res = self._send_request(self._url_format("history/daily", query, tz))
+        res = self._send_request(self._url_format("history/daily", query, tz), "historic data")
         history_weather = res['data']
         return history_weather
 
@@ -79,7 +79,7 @@ class API:
         :param tz: city timezone
         :return: charting data.
         """
-        res = self._send_request(self._url_format("history/hourly", query, tz))
+        res = self._send_request(self._url_format("history/hourly", query, tz), "historic chart data")
         history_chart_data = [item['temp'] for item in res['data']]
         return history_chart_data
 
@@ -97,7 +97,7 @@ class API:
             return "{base}/{slug}?{query}&key={key}".format(base=self._base_url, slug=slug,
                                                             query=query, key=DataStore.get_api_key())
 
-    def _send_request(self, url: str) -> Any:
+    def _send_request(self, url: str, parent: str = "data") -> Any:
         try:
             r = requests.get(url, headers=self._headers)
             if r.status_code == 200:
@@ -111,7 +111,8 @@ class API:
                 raise RateLimitReached("The API rate limit has reached. Please wait until it resets or go to "
                                        "Menu -> Preference and enter your own API key.")
             else:
-                raise APIError("Something is broken. Please make sure your API key is valid or try again later.")
+                raise APIError("Unable to fetch %s. Please make sure your API key given in Menu -> Preference is "
+                               "valid or try again later." % parent)
         except requests.ConnectionError:
             raise APIError("Something went wrong. Check your internet connection or please try again later.")
 

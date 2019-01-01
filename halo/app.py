@@ -311,12 +311,12 @@ class MainWindow(Gtk.ApplicationWindow):
                 self.chartData = forecast_chart.result()
                 # Render current weather
                 GObject.idle_add(self.render_weather)
+                GObject.idle_add(self.forecastArea.render, self.forecastWeather, self.chartData)
 
                 self.historyWeather = history.result()
                 self.historyChartData = history_chart.result()
 
-                # Render rest of the data
-                GObject.idle_add(self.forecastArea.render, self.forecastWeather, self.chartData)
+                # Render history data
                 GObject.idle_add(self.historyArea.render, self.historyWeather, self.historyChartData)
                 GObject.idle_add(self.clear_cursor, widget)
         except NotFound as e:
