@@ -89,13 +89,13 @@ class API:
                         .astimezone(pytz.utc) - timedelta(days=days_count)
             end = datetime.now(pytz.timezone(city_tz)).replace(hour=0, minute=0, second=0, microsecond=0) \
                 .astimezone(pytz.utc)
-            return "{base}/{slug}?{query}&start_date={start}&end_date={end}&key={key}"\
+            return "{base}/{slug}?{query}&start_date={start}&end_date={end}&key={key}&units={units}"\
                 .format(base=self._base_url, slug=slug, query=query,
                         start=start.strftime("%Y-%m-%d:%H"), end=end.strftime("%Y-%m-%d:%H"),
-                        key=DataStore.get_api_key())
+                        key=DataStore.get_api_key(), units="I") # This should be switchable in Preferences (F/C) [Url parameter "M" vs. "I" here.
         else:
             return "{base}/{slug}?{query}&key={key}".format(base=self._base_url, slug=slug,
-                                                            query=query, key=DataStore.get_api_key())
+                                                            query=query, key=DataStore.get_api_key(), untis="I") # This should be switchable in Preferences (F/C) [Url parameter "M" vs. "I" here.
 
     def _send_request(self, url: str, parent: str = "data") -> Any:
         try:
