@@ -94,8 +94,8 @@ class API:
                         start=start.strftime("%Y-%m-%d:%H"), end=end.strftime("%Y-%m-%d:%H"),
                         key=DataStore.get_api_key(), units="I") # This should be switchable in Preferences (F/C) [Url parameter "M" vs. "I" here.
         else:
-            return "{base}/{slug}?{query}&key={key}".format(base=self._base_url, slug=slug,
-                                                            query=query, key=DataStore.get_api_key(), untis="I") # This should be switchable in Preferences (F/C) [Url parameter "M" vs. "I" here.
+            return "{base}/{slug}?{query}&key={key}&units={units}".format(base=self._base_url, slug=slug,
+                                                            query=query, key=DataStore.get_api_key(), units="I") # This should be switchable in Preferences (F/C) [Url parameter "M" vs. "I" here.
 
     def _send_request(self, url: str, parent: str = "data") -> Any:
         try:
