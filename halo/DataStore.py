@@ -9,7 +9,7 @@ from os import path
 from typing import Tuple
 
 from halo.settings import DEFAULT_DB_LOCATION, DEFAULT_WEATHER_API_KEY, \
-    DEFAULT_BACKGROUND_IMAGE, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
+    DEFAULT_BACKGROUND_IMAGE, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH, DEFAULT_UNITS, SUPPORTED_UNITS
 
 
 def query(fn):
@@ -35,6 +35,7 @@ class DataStore:
     __SCREEN_WIDTH = DEFAULT_SCREEN_WIDTH
     __API_KEY = DEFAULT_WEATHER_API_KEY
     __BG_FILE = DEFAULT_BACKGROUND_IMAGE
+    __UNITS = DEFAULT_UNITS
 
     def __init__(self, db_location: str = DEFAULT_DB_LOCATION):
         """
@@ -68,6 +69,8 @@ class DataStore:
                            (DEFAULT_SCREEN_WIDTH,))
         self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('screen-height',?)''',
                            (DEFAULT_SCREEN_HEIGHT,))
+        self.__cur.execute('''INSERT or IGNORE INTO setting VALUES('units',?)''',
+                           (DEFAULT_UNITS,))
         self.__conn.commit()
 
     def refresh_preference(self):
@@ -79,6 +82,7 @@ class DataStore:
 
         DataStore.__SCREEN_WIDTH = self.__fetch_settings('screen-width')
         DataStore.__SCREEN_HEIGHT = self.__fetch_settings('screen-height')
+        DataStore.__UNITS = self.__fetch_settings('units')
 
     def __fetch_settings(self, name: str) -> str:
         """
@@ -158,6 +162,16 @@ class DataStore:
             self.__update_settings('bg-image', file_name)
         else:
             print("Invalid background image file path provided. Ignoring silently.")
+
+    @staticmethod
+    def get_units():
+        return DataStore.__UNITS
+
+    def set_units(self, units):
+        if units in SUPPORTED_UNITS.values():
+            self.__update_settings('units', units)
+        else:
+            print("The unit provided is not supported.")
 
     def screen(self, width: int, height: int):
         """

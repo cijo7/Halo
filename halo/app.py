@@ -15,7 +15,7 @@ from halo.Icon import Icon
 from halo.Place import PlaceDialog
 from halo.Preference import PreferenceDialog
 from halo.SummaryView import SummaryView
-from halo.settings import BASE, VERSION, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH
+from halo.settings import BASE, VERSION, DEFAULT_SCREEN_HEIGHT, DEFAULT_SCREEN_WIDTH, DISPLAY_TEMP_UNITS
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf, Gdk, GObject, GLib  # noqa: E402
@@ -331,7 +331,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.icon.set_from_pixbuf(Icon.get_icon(self.currentWeather['code'], 60))
         self.place.set_text(self.city)
         self.status.set_text(self.currentWeather['status'].title())
-        self.temperature.set_text(str(int(self.currentWeather['temp'])) + "°" + "F") # This should be switchable in Preferences (F/C)
+        self.temperature.set_text(str(int(self.currentWeather['temp'])) + DISPLAY_TEMP_UNITS[DataStore.get_units()])
         self.update_time()
 
     def refresh(self, widget=None):
