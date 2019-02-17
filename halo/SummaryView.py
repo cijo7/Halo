@@ -93,7 +93,7 @@ class SummaryView:
         self.chart_data = chart_data
         # Summary
         for weather, box in zip(weather_data, self.items):
-            box[2].set_text(str(int(weather['temp'])) + "°C")
+            box[2].set_text(str(int(weather['temp'])) + "°" + "F") # This should be switchable in Preferences (F/C)
             box[1].set_text(datetime.fromtimestamp(weather['ts']).strftime("%a"))
             if not self.single_day_mode:
                 box[0].set_from_pixbuf(Icon.get_icon(weather['weather']['code']))
