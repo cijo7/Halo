@@ -331,7 +331,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.icon.set_from_pixbuf(Icon.get_icon(self.currentWeather['code'], 60))
         self.place.set_text(self.city)
         self.status.set_text(self.currentWeather['status'].title())
-        self.temperature.set_text(str(int(self.currentWeather['temp'])) + "°")
+        self.temperature.set_text(str(int(self.currentWeather['temp'])) + "°" + "F") # This should be switchable in Preferences (F/C)
         self.update_time()
 
     def refresh(self, widget=None):
