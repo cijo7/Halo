@@ -6,9 +6,9 @@ from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
-from DataStore import DataStore
+from halo.DataStore import DataStore
 from halo.Icon import Icon
-from settings import DISPLAY_TEMP_UNITS
+from halo.settings import DISPLAY_TEMP_UNITS
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # noqa: E402

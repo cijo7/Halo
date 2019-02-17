@@ -4,7 +4,7 @@ Stores the default settings for the application.
 
 import os
 
-DEBUG = True
+DEBUG = False
 VERSION = '0.1.3'
 DEFAULT_WEATHER_API_KEY = "ed7d94c3231540d1a8b046f62a3fd8f2"
 

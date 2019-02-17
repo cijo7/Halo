@@ -1,7 +1,7 @@
 import gi
 
 from halo.DataStore import DataStore
-from settings import DEFAULT_UNITS, SUPPORTED_UNITS
+from halo.settings import DEFAULT_UNITS, SUPPORTED_UNITS
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf  # noqa: E402
