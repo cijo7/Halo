@@ -6,7 +6,9 @@ from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
+from DataStore import DataStore
 from halo.Icon import Icon
+from settings import DISPLAY_TEMP_UNITS
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # noqa: E402
@@ -75,6 +77,8 @@ class SummaryView:
         self.view.pack_start(self.chart, False, False, 20)
         self.view.pack_start(self.summary, False, False, 15)
 
+        self._store = DataStore()
+
     def get_view(self) -> Gtk.Box:
         """
         Returns the view object for rendering ui.
@@ -91,9 +95,10 @@ class SummaryView:
         :param chart_data: Charting data
         """
         self.chart_data = chart_data
+        self._store.refresh_preference()
         # Summary
         for weather, box in zip(weather_data, self.items):
-            box[2].set_text(str(int(weather['temp'])) + "°C")
+            box[2].set_text(str(int(weather['temp'])) + DISPLAY_TEMP_UNITS[self._store.get_units()])
             box[1].set_text(datetime.fromtimestamp(weather['ts']).strftime("%a"))
             if not self.single_day_mode:
                 box[0].set_from_pixbuf(Icon.get_icon(weather['weather']['code']))
@@ -112,7 +117,7 @@ class SummaryView:
         x = int(event.xdata)
         if x >= len(self.chart_data) or x < 0:
             return
-        self.label.set_text(str(self.chart_data[x]) + "°")
+        self.label.set_text(str(self.chart_data[x]) + DISPLAY_TEMP_UNITS[self._store.get_units()])
 
     def hide_label(self, event):
         self.label.set_text("")

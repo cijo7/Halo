@@ -13,6 +13,7 @@ class API:
     Currently it implements fetching current weather, forecast and 1 day
     (limit on free plan) historic weather data.
     """
+
     def __init__(self):
         self._base_url = "https://api.weatherbit.io/v2.0"
         self._headers = {'Accept': 'application/json', 'Accept-Charset': 'UTF-8'}
@@ -89,13 +90,14 @@ class API:
                         .astimezone(pytz.utc) - timedelta(days=days_count)
             end = datetime.now(pytz.timezone(city_tz)).replace(hour=0, minute=0, second=0, microsecond=0) \
                 .astimezone(pytz.utc)
-            return "{base}/{slug}?{query}&start_date={start}&end_date={end}&key={key}"\
+            return "{base}/{slug}?{query}&start_date={start}&end_date={end}&key={key}&units={units}" \
                 .format(base=self._base_url, slug=slug, query=query,
                         start=start.strftime("%Y-%m-%d:%H"), end=end.strftime("%Y-%m-%d:%H"),
-                        key=DataStore.get_api_key())
+                        key=DataStore.get_api_key(), units=DataStore.get_units())
         else:
-            return "{base}/{slug}?{query}&key={key}".format(base=self._base_url, slug=slug,
-                                                            query=query, key=DataStore.get_api_key())
+            return "{base}/{slug}?{query}&key={key}&units={units}".format(base=self._base_url, slug=slug,
+                                                                          query=query, key=DataStore.get_api_key(),
+                                                                          units=DataStore.get_units())
 
     def _send_request(self, url: str, parent: str = "data") -> Any:
         try:

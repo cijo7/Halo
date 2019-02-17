@@ -4,7 +4,7 @@ Stores the default settings for the application.
 
 import os
 
-DEBUG = False
+DEBUG = True
 VERSION = '0.1.3'
 DEFAULT_WEATHER_API_KEY = "ed7d94c3231540d1a8b046f62a3fd8f2"
 
@@ -19,3 +19,7 @@ DEFAULT_DB_LOCATION = APP_DATA + "/database.sqlite"
 
 DEFAULT_SCREEN_WIDTH = 700
 DEFAULT_SCREEN_HEIGHT = 570
+
+SUPPORTED_UNITS = {'Metric': 'M', 'Scientific': 'S', 'Fahrenheit': 'I'}
+DISPLAY_TEMP_UNITS = {'M': '°C', 'S': 'K', 'I': '°F'}
+DEFAULT_UNITS = 'M'

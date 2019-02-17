@@ -1,6 +1,7 @@
 import gi
 
 from halo.DataStore import DataStore
+from settings import DEFAULT_UNITS, SUPPORTED_UNITS
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GdkPixbuf  # noqa: E402
@@ -36,7 +37,7 @@ class PreferenceDialog(Gtk.Dialog):
         api.pack_start(self.key, True, True, 0)
         api.pack_start(desc, True, True, 0)
 
-        bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+        bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         self.preview = Gtk.Image()
         txt = Gtk.Label(label="Choose a Background Image")
         txt.set_alignment(0, 0)
@@ -48,8 +49,28 @@ class PreferenceDialog(Gtk.Dialog):
         bg.pack_start(self.bg, True, True, 0)
         bg.pack_start(btn, False, False, 0)
 
+        self.__units = DEFAULT_UNITS
+        unit_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        unit_desc = Gtk.Label(label="Choose a Unit")
+        unit_desc.set_alignment(0, 0)
+        units_list = Gtk.ComboBoxText()
+        units_list.set_entry_text_column(0)
+        units_list.connect("changed", self.on_units_changed)
+        for unit in SUPPORTED_UNITS.keys():
+            units_list.append_text(unit)
+
+        default_u = DataStore.get_units()
+        unit_index = 0
+        for u, i in zip(SUPPORTED_UNITS.values(), range(len(SUPPORTED_UNITS))):
+            if default_u == u:
+                unit_index = i
+        units_list.set_active(unit_index)
+        unit_box.pack_start(unit_desc, True, True, 0)
+        unit_box.pack_start(units_list, True, True, 0)
+
         box.pack_start(api, True, True, 5)
         box.pack_start(bg, True, True, 5)
+        box.pack_start(unit_box, True, True, 5)
         self.set_default_size(300, 100)
         area = self.get_content_area()
         area.add(box)
@@ -62,6 +83,7 @@ class PreferenceDialog(Gtk.Dialog):
         store = DataStore()
         store.set_api_key(key)
         store.set_bg_file(bg)
+        store.set_units(self.__units)
         store.refresh_preference()
 
     def file_chooser(self, widget):
@@ -122,3 +144,12 @@ class PreferenceDialog(Gtk.Dialog):
                 buff = buff.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             self.preview.set_from_pixbuf(buff)
             widget.set_preview_widget_active(True)
+
+    def on_units_changed(self, units_list):
+        """
+        Saves every new selection.
+        :param units_list: unit key name.
+        :return:
+        """
+        if units_list.get_active_text() is not None:
+            self.__units = SUPPORTED_UNITS[units_list.get_active_text()]
