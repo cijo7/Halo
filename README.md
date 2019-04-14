@@ -41,22 +41,22 @@ user@ubuntu:~$ sudo snap install --edge halo-weather
 ````
 
 ### Tarball
-To install from [tarball](https://github.com/cijo7/Halo/releases/download/v0.1.3/Halo-0.1.3.tar.gz),
+To install from the tarball, first download the latest from [releases](https://github.com/cijo7/Halo/releases)
 
 ````console
-user@ubuntu:~$ wget https://github.com/cijo7/Halo/releases/download/v0.1.3/Halo-0.1.3.tar.gz
+user@ubuntu:~$ wget https://github.com/cijo7/Halo/releases/download/<version>/<file_name>
 ````
 
 Extract it with
 
 ````console
-user@ubuntu:~$ tar -xf Halo-0.1.3.tar.gz
+user@ubuntu:~$ tar -xf Halo-X.X.X.tar.gz
 ````
 
 Change your directory to extracted folder
 
 ````console
-user@ubuntu:~$ cd Halo-0.1.3
+user@ubuntu:~$ cd Halo-X.X.X
 ````
 
 Installing required binaries:

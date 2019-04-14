@@ -21,6 +21,7 @@ class PreferenceDialog(Gtk.Dialog):
         """
         super().__init__(title="Preference", transient_for=parent, modal=True)
         self.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE)
+        border = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
 
         api = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
@@ -51,7 +52,7 @@ class PreferenceDialog(Gtk.Dialog):
 
         self.__units = DEFAULT_UNITS
         unit_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
-        unit_desc = Gtk.Label(label="Choose a Unit")
+        unit_desc = Gtk.Label(label="Choose a System of Units")
         unit_desc.set_alignment(0, 0)
         units_list = Gtk.ComboBoxText()
         units_list.set_entry_text_column(0)
@@ -68,12 +69,13 @@ class PreferenceDialog(Gtk.Dialog):
         unit_box.pack_start(unit_desc, True, True, 0)
         unit_box.pack_start(units_list, True, True, 0)
 
-        box.pack_start(api, True, True, 5)
-        box.pack_start(bg, True, True, 5)
         box.pack_start(unit_box, True, True, 5)
+        box.pack_start(bg, True, True, 5)
+        box.pack_start(api, True, True, 5)
+        border.pack_start(box, True, True, 10)
         self.set_default_size(300, 100)
         area = self.get_content_area()
-        area.add(box)
+        area.add(border)
         self.show_all()
 
     def save_preference(self):
