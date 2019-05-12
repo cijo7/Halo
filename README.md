@@ -44,7 +44,7 @@ user@ubuntu:~$ sudo snap install --edge halo-weather
 To install from the tarball, first download the latest from [releases](https://github.com/cijo7/Halo/releases)
 
 ````console
-user@ubuntu:~$ wget https://github.com/cijo7/Halo/releases/download/<version>/<file_name>
+user@ubuntu:~$ wget https://github.com/cijo7/Halo/releases/latest/download/Halo-X.X.X.tar.gz
 ````
 
 Extract it with
@@ -80,10 +80,11 @@ $ halo-weather
 
 ### Running directly from Source
 
-You can directly run this code without the need of installing anything into your system.
-First, you will need to install the dependencies manually by running
+You can directly run this from source.
+First, you will need to clone the source code and install the dependencies manually by running
 
 ````sh-session
+$ git clone https://github.com/cijo7/Halo.git && cd Halo
 $ pip3 install -r requirements.txt
 ````
 
