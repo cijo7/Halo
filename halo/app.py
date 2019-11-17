@@ -9,7 +9,7 @@ import gi
 import pytz
 from matplotlib import rcParams
 
-from halo.API import API, APIError, RateLimitReached, NotFound
+from halo.API import OpenWeatherMap, APIError, RateLimitReached, NotFound, get_location
 from halo.DataStore import DataStore
 from halo.Icon import Icon
 from halo.Place import PlaceDialog
@@ -30,7 +30,7 @@ class MainWindow(Gtk.ApplicationWindow):
         Initialises the main window
         """
         super().__init__(application=application)
-        self.api = API()
+        self.api = OpenWeatherMap()
         self.store = DataStore()
         self.city = None
         self.city_tz = "UTC"
@@ -201,7 +201,6 @@ class MainWindow(Gtk.ApplicationWindow):
             self.LW = screen.width
             self.LH = screen.height
 
-    # noinspection PyUnusedLocal
     def switch_city(self, widget=None):
         """Change the city for which weather data is displayed"""
         dialog = PlaceDialog(self)
@@ -256,7 +255,8 @@ class MainWindow(Gtk.ApplicationWindow):
         :param widget: The GUI widget that triggered search.
         """
         # If no city is specified, then detect location based on user ip.
-        query = "ip=auto" if city is None else "city=" + city
+        if city is None and not self.api.has_ip_support:
+            city = get_location()
 
         def not_found(err):
             """
@@ -298,26 +298,23 @@ class MainWindow(Gtk.ApplicationWindow):
         try:
             with concurrent.futures.ThreadPoolExecutor(max_workers=4) as exe:
                 # Current weather
-                current = exe.submit(self.api.get_current_weather, query)
+                current = exe.submit(self.api.get_current_weather, city)
                 # Forecast
-                forecast = exe.submit(self.api.get_forecast_weather, query)
-                forecast_chart = exe.submit(self.api.get_forecast_weather_chart, query)
+                forecast = exe.submit(self.api.get_forecast_weather, city)
                 self.city, self.city_tz, self.currentWeather = current.result()
 
                 # Historic data fetched with tz returned from previous call
-                history = exe.submit(self.api.get_weather_history, query, self.city_tz)
-                history_chart = exe.submit(self.api.get_weather_history_chart, query, self.city_tz)
-                self.forecastWeather = forecast.result()
-                self.chartData = forecast_chart.result()
+                if self.api.has_historical:
+                    history = exe.submit(self.api.get_weather_history, city, self.city_tz)
+                self.forecastWeather, self.chartData = forecast.result()
                 # Render current weather
                 GObject.idle_add(self.render_weather)
                 GObject.idle_add(self.forecastArea.render, self.forecastWeather, self.chartData)
 
-                self.historyWeather = history.result()
-                self.historyChartData = history_chart.result()
-
                 # Render history data
-                GObject.idle_add(self.historyArea.render, self.historyWeather, self.historyChartData)
+                if self.api.has_historical:
+                    self.historyWeather, self.historyChartData = history.result()
+                    GObject.idle_add(self.historyArea.render, self.historyWeather, self.historyChartData)
                 GObject.idle_add(self.clear_cursor, widget)
         except NotFound as e:
             GObject.idle_add(not_found, e)
@@ -325,7 +322,9 @@ class MainWindow(Gtk.ApplicationWindow):
             GObject.idle_add(api_error, e)
 
     def render_weather(self):
-        """Update the current weather info of currently chosen city"""
+        """
+        Update the current weather info of currently chosen city
+        """
         if self.currentWeather is None:
             return
         self.icon.set_from_pixbuf(Icon.get_icon(self.currentWeather['code'], 60))

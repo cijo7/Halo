@@ -6,6 +6,7 @@ from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_gtk3agg import FigureCanvasGTK3Agg as FigureCanvas
 from matplotlib.figure import Figure
 
+from API import OpenWeatherMap
 from halo.DataStore import DataStore
 from halo.Icon import Icon
 from halo.settings import DISPLAY_TEMP_UNITS
@@ -98,12 +99,12 @@ class SummaryView:
         self._store.refresh_preference()
         # Summary
         for weather, box in zip(weather_data, self.items):
-            box[2].set_text(str(int(weather['temp'])) + DISPLAY_TEMP_UNITS[self._store.get_units()])
-            box[1].set_text(datetime.fromtimestamp(weather['ts']).strftime("%a"))
+            box[2].set_text(str(int(weather['main']['temp'])) + DISPLAY_TEMP_UNITS[self._store.get_units()])
+            box[1].set_text(datetime.fromtimestamp(weather['dt']).strftime("%-I %p"))
             if not self.single_day_mode:
-                box[0].set_from_pixbuf(Icon.get_icon(weather['weather']['code']))
+                box[0].set_from_pixbuf(Icon.get_icon(OpenWeatherMap.get_icons(weather['weather'][0]['icon'])))
 
-        self.items[0][1].set_text("Yesterday" if self.single_day_mode else "Today")
+        # self.items[0][1].set_text("Yesterday" if self.single_day_mode else "Today")
 
         # Chart
         self.axis.clear()
