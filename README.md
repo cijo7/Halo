@@ -40,36 +40,19 @@ To install the latest build,
 user@ubuntu:~$ sudo snap install --edge halo-weather
 ````
 
-### Tarball
-To install from the tarball, first download the latest from [releases](https://github.com/cijo7/Halo/releases)
+### Pypi
 
-````console
-user@ubuntu:~$ wget https://github.com/cijo7/Halo/releases/latest/download/Halo-X.X.X.tar.gz
-````
-
-Extract it with
-
-````console
-user@ubuntu:~$ tar -xf Halo-X.X.X.tar.gz
-````
-
-Change your directory to extracted folder
-
-````console
-user@ubuntu:~$ cd Halo-X.X.X
-````
-
-Installing required binaries:
+Make sure the following binaries are present:
 
 ````console
 user@ubuntu:~$ sudo apt install python3-setuptools pkg-config libcairo2-dev libgirepository1.0-dev gir1.2-gtk-3.0 python3-dev
 ````
 
-Installing the package
+To install the package package using pip,
 
 ````console
-user@ubuntu:~$ sudo python3 setup.py install
-`````
+user@ubuntu:~$ pip3 install halo-weather
+````
 
 ## Usage
 After installing it, you can directly launch it either by searching for Halo among your installed apps, or from terminal by running
