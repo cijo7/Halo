@@ -27,7 +27,7 @@ class PreferenceDialog(Gtk.Dialog):
         api = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
         txt = Gtk.Label(label="Your API Key")
         desc = Gtk.Label()
-        desc.set_markup('<a href="https://www.weatherbit.io/account/create">Sign up</a>'
+        desc.set_markup('<a href="https://home.openweathermap.org/users/sign_up">Sign up</a>'
                         ' to create new API key.')
         txt.set_alignment(0, 0)
         desc.set_alignment(1, 0)
