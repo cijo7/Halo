@@ -14,7 +14,7 @@ def get_long_description():
         description.append(f.read())
 
 
-setup(name='Halo',
+setup(name='halo-weather',
       version=VERSION,
       description='The weather app.',
       long_description=get_long_description(),
