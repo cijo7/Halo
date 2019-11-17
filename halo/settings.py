@@ -5,7 +5,7 @@ Stores the default settings for the application.
 import os
 
 DEBUG = False
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 DEFAULT_WEATHER_API_KEY = "1f727b8d4afb4c055dfc5550aeafbecc"
 
 BASE = os.path.dirname(os.path.abspath(__file__))

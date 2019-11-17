@@ -1,6 +1,7 @@
 import os
 
 from setuptools import setup
+
 from halo.settings import DEBUG, VERSION
 
 if DEBUG:
@@ -19,7 +20,7 @@ setup(name='halo-weather',
       description='The weather app.',
       long_description=get_long_description(),
       author='Cijo Saju',
-      author_email='hello@cijo.me',
+      author_email='halo@cijo.mni.im',
       license='MIT',
       packages=['halo'],
       url='https://github.com/cijo7/Halo',
