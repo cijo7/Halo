@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
     - name: Set up Python
       uses: actions/setup-python@v1
       with:
